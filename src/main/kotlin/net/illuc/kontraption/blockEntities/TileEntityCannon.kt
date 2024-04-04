@@ -25,7 +25,7 @@ class TileEntityCannon(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(
         if (level is ServerLevel) {
             for (player in (level as ServerLevel).players()) {
                 (level as ServerLevel).sendParticles(player, ParticleTypes.EXPLOSION, true, clipResult.blockPos.x.toDouble()+0.5,clipResult.blockPos.y.toDouble()+0.5,clipResult.blockPos.z.toDouble()+0.5, 1, 0.001, 0.001, 0.001, 0.0)
-                    //level.sendParticles(player, ParticleTypes.TOTEM_OF_UNDYING, true, blockPos.x.toDouble(), blockPos.x.toDouble(), blockPos.x.toDouble())
+                    level.sendParticles(player, ParticleTypes.TOTEM_OF_UNDYING, true, blockPos.x.toDouble(), blockPos.x.toDouble(), blockPos.x.toDouble())
             }
         }
     }
