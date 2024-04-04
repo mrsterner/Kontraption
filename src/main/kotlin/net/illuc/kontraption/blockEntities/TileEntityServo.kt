@@ -18,7 +18,7 @@ class TileEntityServo(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(K
     override fun load(tag: CompoundTag) {
         super.load(tag)
 
-        /*if (tag.contains("Kontraption\$shipId")) {
+        if (tag.contains("Kontraption\$shipId")) {
             shipID = tag.getLong("Kontraption\$shipId")
         }
         if (activated)
@@ -28,7 +28,7 @@ class TileEntityServo(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(K
                 shipID = -1L
 
 
-        shipIds = tag.getLongArray("shipIds").asList()*/
+        shipIds = tag.getLongArray("shipIds").asList()
     }
 
 
