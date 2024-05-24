@@ -118,7 +118,7 @@ class Kontraption : IModModule {
         modEventBus.addListener(::clientSetup)
         modEventBus.addListener(::entityRenderers)
         modEventBus.addListener(::loadComplete)
-        MinecraftForge.EVENT_BUS.addListener(ClientRuntimeEvents::onRenderWorld)
+
 
         TAB_REGISTER.register("general", ::createCreativeTab);
         TAB_REGISTER.register(modEventBus);
@@ -178,7 +178,7 @@ class Kontraption : IModModule {
 
     private fun clientSetup(event: FMLClientSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
-
+        MinecraftForge.EVENT_BUS.addListener(ClientRuntimeEvents::onRenderWorld)
 
 
     }
