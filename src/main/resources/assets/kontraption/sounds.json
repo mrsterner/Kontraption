@@ -1,0 +1,10 @@
+{
+  "tile.cannon.shot": {
+    "sounds": [
+      "kontraption:tile/cannon_shot_0",
+      "kontraption:tile/cannon_shot_1",
+      "kontraption:tile/cannon_shot_2"
+    ],
+    "subtitle": "sound_event.kontraption.tile.cannon.shot"
+  }
+}

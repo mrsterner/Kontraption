@@ -1,5 +1,6 @@
 package net.illuc.kontraption;
 
+import net.illuc.kontraption.client.MuzzleFlashParticle;
 import net.illuc.kontraption.client.ThrusterParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,6 +21,7 @@ public class ClientEvents {
         public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
             System.out.println("bal");
             Minecraft.getInstance().particleEngine.register(KontraptionParticleTypes.INSTANCE.getTHRUSTER().get(), ThrusterParticle.Factory::new);
+            Minecraft.getInstance().particleEngine.register(KontraptionParticleTypes.INSTANCE.getMUZZLE_FLASH().get(), MuzzleFlashParticle.Factory::new);
         }
     }
 

@@ -2,15 +2,19 @@ package net.illuc.kontraption;
 
 import mekanism.api.math.FloatingLong;
 import mekanism.common.MekanismLang;
+import mekanism.common.block.attribute.Attribute;
 import mekanism.common.block.attribute.AttributeCustomSelectionBox;
 import mekanism.common.block.attribute.AttributeStateFacing;
 import mekanism.common.block.attribute.Attributes;
 import mekanism.common.content.blocktype.BlockType;
 import mekanism.common.content.blocktype.BlockTypeTile;
 import mekanism.common.registries.MekanismSounds;
+import mekanism.common.util.MekanismUtils;
 import net.illuc.kontraption.blockEntities.*;
 import net.illuc.kontraption.config.KontraptionConfigs;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public class KontraptionBlockTypes {
 
@@ -76,7 +80,15 @@ public class KontraptionBlockTypes {
     public static final BlockTypeTile<TileEntityCannon> CANNON = BlockTypeTile.BlockTileBuilder
             .createBlock(() -> KontraptionTileEntityTypes.CANNON, MekanismLang.HOLD_FOR_DESCRIPTION)
             //.withCustomShape(KontraptionBlockShapes.INSTANCE.getWHEEL())
-            .with(new AttributeStateFacing(BlockStateProperties.FACING))
+            .with(new AttributeStateFacing(BlockStateProperties.FACING), Attributes.REDSTONE)
+            .with(AttributeCustomSelectionBox.JSON)
+            .withGui(() -> KontraptionContainerTypes.INSTANCE.getCANNON())
+            .withCustomShape(KontraptionBlockShapes.CANNON)
+            .withBounding((pos, state, builder) -> {
+               builder.add(pos.relative(Attribute.getFacing(state)));
+               builder.add(pos.offset(Attribute.getFacing(state).getNormal().multiply(2)));
+               builder.add(pos.offset(Attribute.getFacing(state).getNormal().multiply(3)));
+            })
             .build();
 
     public static final BlockTypeTile<TileEntityServo> SERVO = BlockTypeTile.BlockTileBuilder

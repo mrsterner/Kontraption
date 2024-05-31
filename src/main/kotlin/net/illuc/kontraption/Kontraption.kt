@@ -1,15 +1,21 @@
 package net.illuc.kontraption
 
+import mekanism.client.ClientRegistrationUtil
 import mekanism.common.Mekanism
 import mekanism.common.base.IModModule
 import mekanism.common.config.MekanismModConfig
+import mekanism.common.inventory.container.tile.MekanismTileContainer
 import mekanism.common.lib.Version
 import mekanism.common.lib.multiblock.MultiblockCache
 import mekanism.common.lib.multiblock.MultiblockManager
 import net.illuc.kontraption.ClientEvents.ClientRuntimeEvents
+import net.illuc.kontraption.KontraptionParticleTypes.MUZZLE_FLASH
 import net.illuc.kontraption.KontraptionParticleTypes.THRUSTER
+import net.illuc.kontraption.blockEntities.TileEntityCannon
 import net.illuc.kontraption.client.KontraptionClientTickHandler
+import net.illuc.kontraption.client.MuzzleFlashParticle
 import net.illuc.kontraption.client.ThrusterParticle
+import net.illuc.kontraption.client.gui.GuiGun
 import net.illuc.kontraption.command.CommandKontraption
 import net.illuc.kontraption.config.KontraptionConfigs
 import net.illuc.kontraption.config.KontraptionKeyBindings
@@ -17,6 +23,7 @@ import net.illuc.kontraption.entity.KontraptionShipMountingEntity
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterMultiblockData
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterValidator
 import net.illuc.kontraption.network.KontraptionPacketHandler
+import net.illuc.kontraption.util.BlockDamageManager
 import net.minecraft.client.Minecraft
 import net.minecraft.client.particle.SpriteSet
 import net.minecraft.core.registries.Registries
@@ -24,6 +31,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobCategory
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.EntityRenderersEvent
@@ -31,6 +39,7 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegisterCommandsEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
@@ -43,6 +52,7 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent
 import net.minecraftforge.fml.loading.FMLEnvironment
 import net.minecraftforge.registries.DeferredRegister
 import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.RegisterEvent
 import net.minecraftforge.registries.RegistryObject
 import net.minecraftforge.versions.forge.ForgeVersion.MOD_ID
 import org.valkyrienskies.mod.client.EmptyRenderer
@@ -74,6 +84,7 @@ class Kontraption : IModModule {
     val TAB_REGISTER: DeferredRegister<CreativeModeTab> = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID)
 
 
+
     // = TODO()
 
 
@@ -97,6 +108,7 @@ class Kontraption : IModModule {
         //GeneratorsSounds.SOUND_EVENTS.register(modEventBus)
         KontraptionContainerTypes.CONTAINER_TYPES.register(modEventBus)
         KontraptionTileEntityTypes.TILE_ENTITY_TYPES.register(modEventBus)
+        KontraptionSounds.SOUND_EVENTS.register(modEventBus)
         //GeneratorsGases.GASES.register(modEventBus)
         //GeneratorsModules.MODULES.register(modEventBus)
         //Set our version number to match the mods.toml file, which matches the one in our build.gradle
@@ -117,6 +129,7 @@ class Kontraption : IModModule {
 
         modEventBus.addListener(::clientSetup)
         modEventBus.addListener(::entityRenderers)
+        MinecraftForge.EVENT_BUS.addListener(::levelLoad)
         modEventBus.addListener(::loadComplete)
 
 
@@ -176,6 +189,11 @@ class Kontraption : IModModule {
         //event.registerEntityRenderer(PHYSICS_ENTITY_TYPE_REGISTRY.get(), ::VSPhysicsEntityRenderer)
     }
 
+    fun levelLoad(event: LevelEvent.Load) {
+        blockDamageManager.levelLoaded(event.level)
+        //event.registerEntityRenderer(PHYSICS_ENTITY_TYPE_REGISTRY.get(), ::VSPhysicsEntityRenderer)
+    }
+
     private fun clientSetup(event: FMLClientSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.addListener(ClientRuntimeEvents::onRenderWorld)
@@ -211,7 +229,7 @@ class Kontraption : IModModule {
         //val fissionReactorManager: MultiblockManager<FissionReactorMultiblockData> = MultiblockManager<FissionReactorMultiblockData>("fissionReactor", Supplier<MultiblockCache<FissionReactorMultiblockData>> { FissionReactorCache() }, Supplier<IStructureValidator<FissionReactorMultiblockData>> { FissionReactorValidator() })
         //val fusionReactorManager: MultiblockManager<FusionReactorMultiblockData> = MultiblockManager<FusionReactorMultiblockData>("fusionReactor", Supplier<MultiblockCache<FusionReactorMultiblockData>> { FusionReactorCache() }, Supplier<IStructureValidator<FusionReactorMultiblockData>> { FusionReactorValidator() })
         val hydrogenThrusterManager: MultiblockManager<LiquidFuelThrusterMultiblockData?> = MultiblockManager("hydrogenThruster", { MultiblockCache<LiquidFuelThrusterMultiblockData?>() }, { LiquidFuelThrusterValidator() })
-
+        val blockDamageManager: BlockDamageManager = BlockDamageManager()
         fun packetHandler(): KontraptionPacketHandler {
             return instance!!.packetHandler
         }
@@ -227,6 +245,7 @@ class Kontraption : IModModule {
         @SubscribeEvent
         fun onParticlesRegistry(e: RegisterParticleProvidersEvent?) {
             Minecraft.getInstance().particleEngine.register(THRUSTER.get()) { spriteSet: SpriteSet? -> ThrusterParticle.Factory(spriteSet) }
+            Minecraft.getInstance().particleEngine.register(MUZZLE_FLASH.get()) { spriteSet: SpriteSet? -> MuzzleFlashParticle.Factory(spriteSet) }
             //Minecraft.getInstance().particleEngine.register(BULLET.get()) { spriteSet: SpriteSet? -> BulletParticle.Factory(spriteSet) }
         }
 
@@ -239,7 +258,24 @@ class Kontraption : IModModule {
         fun init(event: FMLClientSetupEvent?) {
             OverlayRegistry.registerOverlayAbove(ForgeIngameGui.HOTBAR_ELEMENT, "Toolgun UI", ToolgunUI())
         }*/
+
+        @SubscribeEvent
+        fun registerContainers(event: RegisterEvent) {
+            event.register(Registries.MENU) { helper ->
+                ClientRegistrationUtil.registerScreen(KontraptionContainerTypes.CANNON) { mekanismTileContainer: MekanismTileContainer<TileEntityCannon>?, inventory: Inventory, component: Component ->
+                    GuiGun(
+                        mekanismTileContainer,
+                        inventory,
+                        component
+                    )
+                }
+            }
+
+
+        }
+
     }
+
 
 
     fun createCreativeTab(): CreativeModeTab {
@@ -256,7 +292,7 @@ class Kontraption : IModModule {
                 output.accept(KontraptionBlocks.LIQUID_FUEL_THRUSTER_EXHAUST)
                 output.accept(KontraptionBlocks.ION_THRUSTER)
                 output.accept(KontraptionBlocks.SHIP_CONTROL_INTERFACE)
-                //output.accept(KontraptionBlocks.CANNON)
+                output.accept(KontraptionBlocks.CANNON)
                 output.accept(KontraptionBlocks.GYRO)
                 //output.accept(KontraptionBlocks.SERVO)
                 //output.accept(KontraptionBlocks.WHEEL)

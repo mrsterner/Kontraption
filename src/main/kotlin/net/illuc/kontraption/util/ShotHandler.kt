@@ -16,11 +16,13 @@ class ShotHandler {
 
     companion object {
         public fun shoot(direction: Vector3d, level: Level, position: Vector3d, distance: Double, func: (hitRes: BlockHitResult) -> Unit) {
+            //TODO: bullet travel
+
             val lookingTowards = direction
 
             val startPos = position
                     .add(0.5, 0.5, 0.5)
-                    .add(direction.mul(0.5))
+
 
 
             val ship = getShipObjectManagingPos(level, position)

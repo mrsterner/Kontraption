@@ -16,6 +16,7 @@ public class KontraptionBlockShapes {
     public static final VoxelShape[] ION_THRUSTER = new VoxelShape[EnumUtils.DIRECTIONS.length];
     public static final VoxelShape[] GYRO = new VoxelShape[EnumUtils.DIRECTIONS.length];
     public static final VoxelShape[] SHIP_CONTROL_INTERFACE = new VoxelShape[EnumUtils.HORIZONTAL_DIRECTIONS.length];
+    public static final VoxelShape[] CANNON = new VoxelShape[EnumUtils.DIRECTIONS.length];
 
     static {
         VoxelShapeUtils.setShape(VoxelShapeUtils.combine(
@@ -35,5 +36,10 @@ public class KontraptionBlockShapes {
                 box(2, 13, 5, 14, 14, 11),
                 box(1, 14, 3, 15, 16, 13)
         ), SHIP_CONTROL_INTERFACE);
+        VoxelShapeUtils.setShape(VoxelShapeUtils.combine(
+                box(1, 1, 1, 15, 15, 15),
+                box(6, -48, 6, 10, 16, 10)
+        ), CANNON, true);
+
     }
 }

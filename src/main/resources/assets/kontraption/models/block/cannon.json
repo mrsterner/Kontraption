@@ -1,0 +1,5 @@
+{
+  "loader": "forge:obj",
+  "flip-v": true,
+  "model": "kontraption:models/block/static_cannon_turret.obj"
+}
