@@ -25,10 +25,7 @@ import net.illuc.kontraption.KontraptionBlocks
 import net.illuc.kontraption.KontraptionSounds
 import net.illuc.kontraption.particles.MuzzleFlashParticleData
 import net.illuc.kontraption.particles.ThrusterParticleData
-import net.illuc.kontraption.util.ShotHandler
-import net.illuc.kontraption.util.toDoubles
-import net.illuc.kontraption.util.toJOMLD
-import net.illuc.kontraption.util.toMinecraft
+import net.illuc.kontraption.util.*
 import net.minecraft.client.particle.SmokeParticle
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -44,6 +41,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.NotNull
 import org.joml.Vector3d
+import org.valkyrienskies.core.api.ships.Ship
 import java.util.function.LongSupplier
 import java.util.function.Supplier
 import kotlin.random.Random
@@ -54,6 +52,7 @@ class TileEntityCannon(pos: BlockPos?, state: BlockState?) : TileEntityConfigura
     var inputTank: IGasTank? = null
     private var inputHandler: IInputHandler<GasStack>? = null
     var cooldown: Int = 20
+    var ship: Ship? = null
 
 
     init {
@@ -69,6 +68,8 @@ class TileEntityCannon(pos: BlockPos?, state: BlockState?) : TileEntityConfigura
             configComponent,
             TransmissionType.GAS
         ).setCanEject { canFunction(this) }
+
+
 
     }
 
@@ -90,20 +91,35 @@ class TileEntityCannon(pos: BlockPos?, state: BlockState?) : TileEntityConfigura
         return builder.build()
     }
 
+
     override fun onUpdateServer() {
         super.onUpdateServer()
+        //TODO: something other than this this is so yucky
+        if (ship == null){
+            ship = KontraptionVSUtils.getShipObjectManagingPos((level as ServerLevel), tilePos)
+                ?: KontraptionVSUtils.getShipManagingPos((level as ServerLevel), tilePos)
+        }
         if (cooldown <= 0) {
             if(canFunction(this)) {
                 if (inputTank!!.extract(100L, Action.SIMULATE, AutomationType.MANUAL).amount >= 100L) {
                     inputTank!!.extract(100L, Action.EXECUTE, AutomationType.MANUAL)
-                    cooldown = 1
+                    cooldown = 80
+
+                    val particleDir = if (ship == null) {
+                        blockState.getValue(BlockStateProperties.FACING).normal.toJOMLD()
+                    } else {
+                        ship!!.transform.shipToWorld.transformDirection(
+                            blockState.getValue(BlockStateProperties.FACING).normal.toJOMLD()
+                        )
+                    }
+
                     (blockPos.toJOMLD().add(
                         blockState.getValue(BlockStateProperties.FACING).normal.toJOMLD().mul(3.5)
                     ))?.let {
                         sendParticleData(
                             level as ServerLevel,
                             it.toMinecraft(),
-                            blockState.getValue(BlockStateProperties.FACING).normal.toJOMLD()
+                            particleDir
                         )
                     }
                     level!!.playSound(null, blockPos, KontraptionSounds.CANNON_SHOT.get(), SoundSource.BLOCKS, 5F, 1F)
