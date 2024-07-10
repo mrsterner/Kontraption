@@ -4,7 +4,6 @@ on:
   registry_package:
     types: [published]
   schedule:
-    # triggers at 4:45 AM UTC (11:45 PM CST)
     - cron: '0 0 * * 0'
 concurrency:
   group: ${{ github.workflow }}
@@ -24,13 +23,18 @@ jobs:
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Get Weekly Commits
+      run: |
+        echo 'WEEKLY_COMMITS<<EOF' >> $GITHUB_ENV
+        git log --format=%B --since=7.days >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
     - name: Send Embedded Discord Message
       uses: tsickert/discord-webhook@v6.0.0
       with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
           embed-title: "Kontraption Nightly"
           embed-description: |
-            embed here
+            ${{ env.WEEKLY_COMMITS }}
           embed-color: 0xFF6600
     - name: Upload Build
       uses: sinshutu/upload-to-discord@v2.0.0
