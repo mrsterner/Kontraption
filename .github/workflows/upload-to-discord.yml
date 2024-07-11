@@ -34,7 +34,7 @@ jobs:
       uses: tsickert/discord-webhook@v6.0.0
       with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          embed-title: "Kontraption Nightly from [`${{ github.ref_name }}`](https://github.com/illucc/Kontraption/tree/${{ github.ref_name }})"
+          embed-title: "Kontraption Nightly from ${{ github.ref_name }}"
           embed-description: |
             Nightlies are posted every friday at 00:00 UTC
             The nightly builds WILL have bugs and MIGHT be broken and not launch at all or corrupt your world! Use these builds with caution!
