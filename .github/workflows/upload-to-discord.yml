@@ -28,7 +28,7 @@ jobs:
     - name: Get Weekly Commits
       run: |
         echo 'WEEKLY_COMMITS<<EOF' >> $GITHUB_ENV
-        git log --format="[\`%h\`](https://github.com/illucc/Kontraption/commit/%H) - %B  -%an" --since=7.days >> $GITHUB_ENV
+        git log --format="[\`%h\`](https://github.com/illucc/Kontraption/commit/%H)%B - %an" --since=7.days >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
     - name: Send Embedded Discord Message
       uses: tsickert/discord-webhook@v6.0.0
