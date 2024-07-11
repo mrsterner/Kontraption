@@ -4,7 +4,7 @@ on:
   registry_package:
     types: [published]
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 0 * * 5'
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -34,9 +34,12 @@ jobs:
       uses: tsickert/discord-webhook@v6.0.0
       with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          embed-title: "Kontraption Nightly"
+          embed-title: "Kontraption Nightly from [`${{ github.ref_name }}`](https://github.com/illucc/Kontraption/tree/${{ github.ref_name }})"
           embed-description: |
-            commits:
+            Nightlies are posted every friday at 00:00 UTC
+            The nightly builds WILL have bugs and MIGHT be broken and not launch at all or corrupt your world! Use these builds with caution!
+            
+            New commits:
             ${{ env.WEEKLY_COMMITS }}
           embed-color: 0xFF6600
     - name: Upload Build
