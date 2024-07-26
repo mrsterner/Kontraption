@@ -39,6 +39,7 @@ open class TileEntityLiquidFuelThrusterCasing(blockProvider: IBlockProvider?, po
     }
 
     //actually fuck it let the baller remove the thruster 913482 times
+    //TODO when the fuck did i write this and why did i think this was a good idea :sob:
     override fun structureChanged(multiblock: LiquidFuelThrusterMultiblockData?) {
 
         if (multiblock!!.isFormed == false) {

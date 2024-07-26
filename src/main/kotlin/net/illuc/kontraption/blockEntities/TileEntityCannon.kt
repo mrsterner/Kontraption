@@ -160,13 +160,13 @@ class TileEntityCannon(pos: BlockPos?, state: BlockState?) : TileEntityConfigura
 
         //(level as ServerLevel).explode(PrimedTnt(EntityType.TNT, level), clipResult.blockPos.x.toDouble(), clipResult.blockPos.y.toDouble(), clipResult.blockPos.z.toDouble(), 5F, Level.ExplosionInteraction.TNT)
         if (level is ServerLevel) {
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,0,0), 60, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(1,0,0), 20, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(-1,0,0), 20, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,1,0), 20, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,-1,0), 20, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,0,1), 20, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
-            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,0,-1), 20, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,0,0), 15, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(1,0,0), 5, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(-1,0,0), 5, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,1,0), 5, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,-1,0), 5, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,0,1), 5, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
+            Kontraption.blockDamageManager.damageBlock(clipResult.blockPos.immutable().offset(0,0,-1), 5, (level as ServerLevel).getBlockState(clipResult.blockPos), level as ServerLevel)
             for (player in (level as ServerLevel).players()) {
                 (level as ServerLevel).sendParticles(player, ParticleTypes.TOTEM_OF_UNDYING, true, clipResult.blockPos.x.toDouble()+0.5,clipResult.blockPos.y.toDouble()+0.5,clipResult.blockPos.z.toDouble()+0.5, 1, 0.001, 0.001, 0.001, 0.0)
                     //level.sendParticles(player, ParticleTypes.TOTEM_OF_UNDYING, true, blockPos.x.toDouble(), blockPos.x.toDouble(), blockPos.x.toDouble())

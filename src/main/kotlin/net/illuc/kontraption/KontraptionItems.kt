@@ -2,6 +2,7 @@ package net.illuc.kontraption
 
 import mekanism.common.registration.impl.ItemDeferredRegister
 import mekanism.common.registration.impl.ItemRegistryObject
+import net.illuc.kontraption.item.ItemEstrogen
 import net.illuc.kontraption.item.ItemToolgun
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Rarity
@@ -14,7 +15,7 @@ object KontraptionItems { //idk check how tournament fixed it
 
     val LIGHTWEIGHT_ALLOY: ItemRegistryObject<Item> = ITEMS.register("alloy_lightweight", Rarity.RARE)
     val TOOLGUN: ItemRegistryObject<ItemToolgun> = ITEMS.register("toolgun")  { properties: Item.Properties -> ItemToolgun(properties) }
-    val ESTROGEN: ItemRegistryObject<Item> = ITEMS.register("estrogen", Rarity.RARE)
+    val ESTROGEN: ItemRegistryObject<ItemEstrogen> = ITEMS.register("estrogen") { properties: Item.Properties -> ItemEstrogen(properties) }
 
 
 }

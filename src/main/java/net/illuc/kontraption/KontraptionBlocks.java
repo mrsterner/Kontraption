@@ -4,13 +4,10 @@ import mekanism.common.block.prefab.BlockBasicMultiblock;
 import mekanism.common.registration.impl.BlockDeferredRegister;
 import mekanism.common.registration.impl.BlockRegistryObject;
 import net.illuc.kontraption.blocks.*;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-
-import java.util.List;
 
 public class KontraptionBlocks {
     private KontraptionBlocks() {
@@ -43,4 +40,11 @@ public class KontraptionBlocks {
 
     public static final BlockRegistryObject<BlockCannon, BlockItem> CANNON = BLOCKS.register("cannon", () -> new BlockCannon(KontraptionBlockTypes.CANNON));
     public static final BlockRegistryObject<BlockServo, BlockItem> SERVO = BLOCKS.register("servo", () -> new BlockServo(KontraptionBlockTypes.SERVO));
+
+    public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_COIL = BLOCKS.register("railgun_coil", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_COIL, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
+    public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_CASING = BLOCKS.register("railgun_casing", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_CASING, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
+    public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_CONTROLLER = BLOCKS.register("railgun_controller", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_CONTROLLER, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
+    public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_PORT = BLOCKS.register("railgun_port", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_PORT, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
+
+
 }

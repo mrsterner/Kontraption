@@ -97,5 +97,25 @@ public class KontraptionBlockTypes {
             .with(new AttributeStateFacing(BlockStateProperties.FACING))
             .build();
 
+    public static final BlockTypeTile<TileEntityRailgunCoil> RAILGUN_COIL = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.RAILGUN_COIL, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .externalMultiblock()
+            .build();
+
+    public static final BlockTypeTile<TileEntityRailgunCasing> RAILGUN_CASING = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.RAILGUN_CASING, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .externalMultiblock()
+            .build();
+
+    public static final BlockTypeTile<TileEntityRailgunController> RAILGUN_CONTROLLER = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.RAILGUN_CONTROLLER, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .externalMultiblock()
+            .build();
+
+    public static final BlockTypeTile<TileEntityRailgunPort> RAILGUN_PORT = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.RAILGUN_PORT, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .externalMultiblock()
+            .build();
+
 
 }

@@ -22,4 +22,9 @@ public class KontraptionTileEntityTypes {
 
     public static final TileEntityTypeRegistryObject<TileEntityServo> SERVO = TILE_ENTITY_TYPES.register(KontraptionBlocks.SERVO, TileEntityServo::new);
 
+    public static final TileEntityTypeRegistryObject<TileEntityRailgunCasing> RAILGUN_CASING = TILE_ENTITY_TYPES.register(KontraptionBlocks.RAILGUN_CASING, TileEntityRailgunCasing::new);
+    public static final TileEntityTypeRegistryObject<TileEntityRailgunCoil> RAILGUN_COIL = TILE_ENTITY_TYPES.register(KontraptionBlocks.RAILGUN_COIL, TileEntityRailgunCoil::new);
+    public static final TileEntityTypeRegistryObject<TileEntityRailgunController> RAILGUN_CONTROLLER = TILE_ENTITY_TYPES.register(KontraptionBlocks.RAILGUN_CONTROLLER, TileEntityRailgunController::new);
+    public static final TileEntityTypeRegistryObject<TileEntityRailgunPort> RAILGUN_PORT = TILE_ENTITY_TYPES.register(KontraptionBlocks.RAILGUN_PORT, TileEntityRailgunPort::new);
+
 }

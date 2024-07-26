@@ -48,7 +48,7 @@ public class BlockDamageManager {
             val oldProgress = entry.value
             if (state.canBeReplaced() || !state.isSolid || state.getDestroySpeed(level, pos) == -1f) {
                 if (oldProgress > 0) level.destroyBlockProgress(-1, pos, -1)
-                iter.remove()
+                    iter.remove()
             } else {
                 val newProgress = oldProgress - 3
                 if (newProgress <= 0) {
