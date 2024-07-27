@@ -22,6 +22,8 @@ import net.illuc.kontraption.config.KontraptionKeyBindings
 import net.illuc.kontraption.entity.KontraptionShipMountingEntity
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterMultiblockData
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterValidator
+import net.illuc.kontraption.multiblocks.railgun.RailgunMultiblockData
+import net.illuc.kontraption.multiblocks.railgun.RailgunValidator
 import net.illuc.kontraption.network.KontraptionPacketHandler
 import net.illuc.kontraption.util.BlockDamageManager
 import net.minecraft.client.Minecraft
@@ -229,6 +231,8 @@ class Kontraption : IModModule {
         //val fissionReactorManager: MultiblockManager<FissionReactorMultiblockData> = MultiblockManager<FissionReactorMultiblockData>("fissionReactor", Supplier<MultiblockCache<FissionReactorMultiblockData>> { FissionReactorCache() }, Supplier<IStructureValidator<FissionReactorMultiblockData>> { FissionReactorValidator() })
         //val fusionReactorManager: MultiblockManager<FusionReactorMultiblockData> = MultiblockManager<FusionReactorMultiblockData>("fusionReactor", Supplier<MultiblockCache<FusionReactorMultiblockData>> { FusionReactorCache() }, Supplier<IStructureValidator<FusionReactorMultiblockData>> { FusionReactorValidator() })
         val hydrogenThrusterManager: MultiblockManager<LiquidFuelThrusterMultiblockData?> = MultiblockManager("hydrogenThruster", { MultiblockCache<LiquidFuelThrusterMultiblockData?>() }, { LiquidFuelThrusterValidator() })
+        val railgunManager: MultiblockManager<RailgunMultiblockData?> = MultiblockManager("railgun", { MultiblockCache<RailgunMultiblockData?>() }, { RailgunValidator() })
+
         val blockDamageManager: BlockDamageManager = BlockDamageManager()
         fun packetHandler(): KontraptionPacketHandler {
             return instance!!.packetHandler

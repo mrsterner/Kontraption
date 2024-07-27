@@ -198,6 +198,10 @@ dependencies {
     implementation fg.deobf("curse.maven:cc-tweaked-282001:5379173")
 
 
+    compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")
+
+
+
     //RUNTIME
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
     //runtimeOnly fg.deobf("curse.maven:rubidium-574856:4494903")
