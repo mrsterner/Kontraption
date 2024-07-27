@@ -14,6 +14,12 @@ import net.illuc.kontraption.util.toDoubles
 import net.illuc.kontraption.util.toJOMLD
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.core.BlockPos
+import mekanism.common.capabilities.energy.MachineEnergyContainer
+import mekanism.common.capabilities.holder.energy.EnergyContainerHelper
+import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder
+import mekanism.common.integration.energy.EnergyCompatUtils
+import mekanism.api.energy.IStrictEnergyHandler
+import mekanism.api.math.FloatingLong
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
@@ -27,15 +33,48 @@ import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.saveAttachment
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import org.jetbrains.annotations.Nullable
+import javax.annotation.Nonnull
+import mekanism.api.Action
+import mekanism.api.AutomationType
+import mekanism.api.IContentsListener
+import mekanism.api.RelativeSide
+import java.util.*
+import mekanism.common.util.MekanismUtils
+import net.minecraftforge.items.IItemHandler
+import mekanism.common.integration.computer.IComputerTile
+import mekanism.common.integration.computer.BoundMethodHolder
+import mekanism.common.integration.computer.FactoryRegistry
+import com.mojang.logging.LogUtils
+import net.illuc.kontraption.util.ShipControlInterfacePeri
+import dan200.computercraft.api.peripheral.IDynamicPeripheral
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.util.LazyOptional
+import net.minecraft.world.level.block.entity.BlockEntity
+import dan200.computercraft.api.ComputerCraftAPI
+import dan200.computercraft.shared.Capabilities
 
-
-class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.SHIP_CONTROL_INTERFACE, pos, state){
+class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.SHIP_CONTROL_INTERFACE, pos, state), IComputerTile {
     private val ship: ServerShip? get() = getShipObjectManagingPos((level as ServerLevel), this.blockPos)
     private var seatedControllingPlayer: KontraptionSeatedControllingPlayer? = null
     private val seats = mutableListOf<KontraptionShipMountingEntity>()
+    private val logger = LogUtils.getLogger()
+    private val peripheral = ShipControlInterfacePeri(this)
+    private val peripheralCapability = LazyOptional.of { peripheral }
 
     private var rotTarget = Quaterniond()
     private var velTarget = Vector3d()
+
+
+    override fun <T> getCapability(capability: Capability<T>, side: Direction?): LazyOptional<T> {
+        return if (capability == Capabilities.CAPABILITY_PERIPHERAL as Capability<T>) {
+            peripheralCapability as LazyOptional<T>
+        } else {
+            super.getCapability(capability, side)
+        }
+    }
+
+
 
     fun spawnSeat(blockPos: BlockPos, state: BlockState, level: ServerLevel): KontraptionShipMountingEntity {
         val newPos = blockPos.relative(state.getValue(HorizontalDirectionalBlock.FACING))
@@ -180,8 +219,8 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
 
     }
 
-    @ComputerMethod
-    private fun getRotation(): Map<String, Double> {
+
+    public fun getRotation(): Map<String, Double> {
         return(mapOf(
                 Pair("x", rotTarget.x()),
                 Pair("y", rotTarget.y()),
@@ -189,8 +228,7 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
                 Pair("w", rotTarget.w())
         ))
     }
-    @ComputerMethod
-    private fun getMovement(): Map<String, Double> {
+    public fun getMovement(): Map<String, Double> {
         return(mapOf(
                 Pair("x", velTarget.x()),
                 Pair("y", velTarget.y()),
@@ -198,8 +236,7 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
         ))
     }
 
-    @ComputerMethod
-    private fun getPosition(): Map<String, Double> {
+    public fun getPosition(): Map<String, Double> {
         val a = ship!!.transform.positionInWorld
         return(mapOf(
                 Pair("x", a.x()),
@@ -207,18 +244,15 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
                 Pair("z", a.z())
         ))
     }
-    @ComputerMethod
-    private fun getWeight(): Double {
+    public fun getWeight(): Double {
         //TODO: i think using the peripheral while not on ship might crash the game because ship is null
         return(ship!!.inertiaData.mass)
 
     }
-    @ComputerMethod
-    private fun getSlug(): String {
+    public fun getSlug(): String {
         return(ship!!.slug.toString())
     }
-    @ComputerMethod
-    private fun getVelocity(): Map<String, Double> {
+    public fun getVelocity(): Map<String, Double> {
         val a = ship!!.velocity
         return(mapOf(
                 Pair("x", a.x()),
@@ -226,13 +260,11 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
                 Pair("z", a.z())
         ))
     }
-    @ComputerMethod
-    private fun setMovement(x: Double, y: Double, z: Double) {
+    public fun setMovement(x: Double, y: Double, z: Double) {
         velTarget = Vector3d(Math.max(-1.0, Math.min(1.0, x)), Math.max(-1.0, Math.min(1.0, y)), Math.max(-1.0, Math.min(1.0, z)))
     }
 
-    @ComputerMethod
-    private fun setRotation(x: Double, y: Double, z: Double, w: Double) {
+    public fun setRotation(x: Double, y: Double, z: Double, w: Double) {
         if(abs(x * x + y * y + z * z + w * w - 1.0) < 0.01){
             rotTarget = Quaterniond(x, y, z, w)
         }else{
@@ -240,8 +272,7 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
         }
     }
 
-    @ComputerMethod
-    private fun rotateAlongAxis(x: Double, y: Double, z: Double) {
+    public fun rotateAlongAxis(x: Double, y: Double, z: Double) {
         val tmp = Quaterniond()
         tmp.fromAxisAngleRad(this.direction.clockWise.normal.toJOMLD(), z * 0.1)
         rotTarget.mul(tmp)
