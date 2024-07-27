@@ -195,6 +195,7 @@ dependencies {
     implementation "org.joml:joml:1.10.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
     implementation 'thedarkcolour:kotlinforforge:4.10.0'
+    implementation fg.deobf("curse.maven:cc-tweaked-282001:5379173")
 
 
     compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")

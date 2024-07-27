@@ -39,7 +39,6 @@ public class KontraptionBlockTypes {
             .with(new AttributeStateFacing(BlockStateProperties.HORIZONTAL_FACING))
             .with(AttributeCustomSelectionBox.JSON)
             .withCustomShape(KontraptionBlockShapes.SHIP_CONTROL_INTERFACE)
-            .withComputerSupport("shipControlInterface")
             .build();
 
     public static final BlockTypeTile<TileEntityGyro> GYRO = BlockTypeTile.BlockTileBuilder
