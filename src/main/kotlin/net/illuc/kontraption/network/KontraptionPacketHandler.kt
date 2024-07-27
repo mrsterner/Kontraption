@@ -4,7 +4,6 @@ import mekanism.common.lib.Version
 import mekanism.common.network.BasePacketHandler
 import net.illuc.kontraption.Kontraption
 import net.illuc.kontraption.network.to_server.PacketKontraptionDriving
-// import net.illuc.kontraption.network.to_server.PacketKontraptionGuiButtonPress
 import net.illuc.kontraption.network.to_server.PacketKontraptionGuiInteract
 import net.minecraftforge.network.simple.SimpleChannel
 
