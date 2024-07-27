@@ -1,7 +1,6 @@
 package net.illuc.kontraption.blockEntities
 
 import mekanism.common.integration.computer.ComputerException
-import mekanism.common.integration.computer.annotation.ComputerMethod
 import mekanism.common.tile.base.TileEntityMekanism
 import net.illuc.kontraption.Kontraption
 import net.illuc.kontraption.KontraptionBlocks
@@ -14,12 +13,6 @@ import net.illuc.kontraption.util.toDoubles
 import net.illuc.kontraption.util.toJOMLD
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.core.BlockPos
-import mekanism.common.capabilities.energy.MachineEnergyContainer
-import mekanism.common.capabilities.holder.energy.EnergyContainerHelper
-import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder
-import mekanism.common.integration.energy.EnergyCompatUtils
-import mekanism.api.energy.IStrictEnergyHandler
-import mekanism.api.math.FloatingLong
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
@@ -33,25 +26,12 @@ import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.saveAttachment
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import org.jetbrains.annotations.Nullable
-import javax.annotation.Nonnull
-import mekanism.api.Action
-import mekanism.api.AutomationType
-import mekanism.api.IContentsListener
-import mekanism.api.RelativeSide
 import java.util.*
-import mekanism.common.util.MekanismUtils
-import net.minecraftforge.items.IItemHandler
 import mekanism.common.integration.computer.IComputerTile
-import mekanism.common.integration.computer.BoundMethodHolder
-import mekanism.common.integration.computer.FactoryRegistry
 import com.mojang.logging.LogUtils
-import net.illuc.kontraption.util.ShipControlInterfacePeri
-import dan200.computercraft.api.peripheral.IDynamicPeripheral
+import net.illuc.kontraption.peripherals.ShipControlInterfacePeripheral
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
-import net.minecraft.world.level.block.entity.BlockEntity
-import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.shared.Capabilities
 
 class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.SHIP_CONTROL_INTERFACE, pos, state), IComputerTile {
@@ -59,7 +39,7 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
     private var seatedControllingPlayer: KontraptionSeatedControllingPlayer? = null
     private val seats = mutableListOf<KontraptionShipMountingEntity>()
     private val logger = LogUtils.getLogger()
-    private val peripheral = ShipControlInterfacePeri(this)
+    private val peripheral = ShipControlInterfacePeripheral(this)
     private val peripheralCapability = LazyOptional.of { peripheral }
 
     private var rotTarget = Quaterniond()

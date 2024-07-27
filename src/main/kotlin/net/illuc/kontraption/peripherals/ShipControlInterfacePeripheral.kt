@@ -1,4 +1,4 @@
-package net.illuc.kontraption.util
+package net.illuc.kontraption.peripherals
 import dan200.computercraft.api.peripheral.IDynamicPeripheral
 import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.api.lua.LuaException
@@ -7,9 +7,8 @@ import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.peripheral.IComputerAccess
 import net.illuc.kontraption.blockEntities.TileEntityShipControlInterface
 import dan200.computercraft.api.lua.IArguments
-import dan200.computercraft.api.lua.LuaFunction;
 
-class ShipControlInterfacePeri(private val blockEntity: TileEntityShipControlInterface) : IDynamicPeripheral  {
+class ShipControlInterfacePeripheral(private val blockEntity: TileEntityShipControlInterface) : IDynamicPeripheral  {
     override fun getType(): String {
         return "ShipControlInterface"
     }
@@ -73,7 +72,7 @@ class ShipControlInterfacePeri(private val blockEntity: TileEntityShipControlInt
     override fun attach(computer: IComputerAccess) {}
     override fun detach(computer: IComputerAccess) {}
     override fun equals(other: IPeripheral?): Boolean {
-        return other is ShipControlInterfacePeri && other.blockEntity == this.blockEntity
+        return other is ShipControlInterfacePeripheral && other.blockEntity == this.blockEntity
     }
     override fun hashCode(): Int {
         return blockEntity.hashCode()
