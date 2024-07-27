@@ -10,9 +10,14 @@ import net.illuc.kontraption.blockEntities.TileEntityIonThruster
 import net.minecraft.nbt.CompoundTag
 import java.util.function.Predicate
 
-
-class IonThrusterEnergyContainer private constructor(maxEnergy: FloatingLong, energyPerTick: FloatingLong, canExtract: Predicate<AutomationType>,
-                                                     canInsert: Predicate<AutomationType>, tile: TileEntityIonThruster, listener: IContentsListener?) : MachineEnergyContainer<TileEntityIonThruster?>(maxEnergy, energyPerTick, canExtract, canInsert, tile, listener) {
+class IonThrusterEnergyContainer private constructor(
+    maxEnergy: FloatingLong,
+    energyPerTick: FloatingLong,
+    canExtract: Predicate<AutomationType>,
+    canInsert: Predicate<AutomationType>,
+    tile: TileEntityIonThruster,
+    listener: IContentsListener?,
+) : MachineEnergyContainer<TileEntityIonThruster?>(maxEnergy, energyPerTick, canExtract, canInsert, tile, listener) {
     override fun adjustableRates(): Boolean {
         return true
     }
@@ -34,7 +39,10 @@ class IonThrusterEnergyContainer private constructor(maxEnergy: FloatingLong, en
     }
 
     companion object {
-        fun input(tile: TileEntityIonThruster, listener: IContentsListener?): IonThrusterEnergyContainer {
+        fun input(
+            tile: TileEntityIonThruster,
+            listener: IContentsListener?,
+        ): IonThrusterEnergyContainer {
             val electricBlock = validateBlock(tile)
             return IonThrusterEnergyContainer(electricBlock.storage, electricBlock.usage, notExternal, alwaysTrue, tile, listener)
         }

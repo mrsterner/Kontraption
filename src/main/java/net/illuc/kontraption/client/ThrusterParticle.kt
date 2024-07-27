@@ -4,21 +4,28 @@ import net.illuc.kontraption.particles.ThrusterParticleData
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.*
-import javax.annotation.Nonnull
-import kotlin.random.Random
 
-class ThrusterParticle protected constructor(world: ClientLevel?, posX: Double, posY: Double, posZ: Double, velX: Double, velY: Double, velZ: Double, scale: Double, spriteSet: SpriteSet?) : TextureSheetParticle(world, posX, posY, posZ, velX, velY, velZ) {
+class ThrusterParticle protected constructor(world: ClientLevel?, posX: Double, posY: Double, posZ: Double, velX: Double, velY: Double, velZ: Double, scale: Double, spriteSet: SpriteSet?) : TextureSheetParticle(
+    world,
+    posX,
+    posY,
+    posZ,
+    velX,
+    velY,
+    velZ,
+) {
     private var spriteset: SpriteSet? = null
+
     init {
         lifetime = 20
         friction = 0.85f
         setSpriteFromAge(spriteSet)
         spriteset = spriteSet
-        //yo = 1.0
+        // yo = 1.0
         xd = velX
         yd = velY
         zd = velZ
-        scale((14f+scale).toFloat())
+        scale((14f + scale).toFloat())
     }
 
     public override fun getLightColor(partialTick: Float): Int {
@@ -29,9 +36,9 @@ class ThrusterParticle protected constructor(world: ClientLevel?, posX: Double, 
         super.tick()
         fadeOut()
         this.setSpriteFromAge(spriteset)
-        if (this.onGround){
+        if (this.onGround) {
             yd = 0.0
-            //xd = Rand
+            // xd = Rand
         }
     }
 
@@ -44,7 +51,16 @@ class ThrusterParticle protected constructor(world: ClientLevel?, posX: Double, 
     }
 
     class Factory(private val spriteSet: SpriteSet?) : ParticleProvider<ThrusterParticleData> {
-        override fun createParticle(thrusterParticleData: ThrusterParticleData, world: ClientLevel, x: Double, y: Double, z: Double, p_107426_: Double, p_107427_: Double, p_107428_: Double): Particle? {
+        override fun createParticle(
+            thrusterParticleData: ThrusterParticleData,
+            world: ClientLevel,
+            x: Double,
+            y: Double,
+            z: Double,
+            p_107426_: Double,
+            p_107427_: Double,
+            p_107428_: Double,
+        ): Particle? {
             return ThrusterParticle(world, x, y, z, thrusterParticleData.posX, thrusterParticleData.posY, thrusterParticleData.posZ, thrusterParticleData.scale, spriteSet)
         }
     }

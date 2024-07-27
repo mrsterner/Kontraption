@@ -27,9 +27,7 @@ import org.joml.Vector3d
 import org.valkyrienskies.core.api.ships.Ship
 import java.util.function.LongSupplier
 
-
 class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing) : MultiblockData(tile), ThrusterInterface, IValveHandler {
-
     // :cri:
     val te = tile
     var exhaustDirection: Direction = Direction.NORTH
@@ -39,13 +37,12 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
     var center: BlockPos = BlockPos(0, 0, 0)
     var innerVolume = 1
 
-    var particleDir = exhaustDirection.normal.multiply(3+exhaustDiameter).toJOMLD()
+    var particleDir = exhaustDirection.normal.multiply(3 + exhaustDiameter).toJOMLD()
     var pos = centerExhaust?.blockPos?.offset(exhaustDirection.normal.multiply(2))
 
     var ship: Ship? = null
 
-
-    //----------------THRUSTER CONTROL-----------------------
+    // ----------------THRUSTER CONTROL-----------------------
     override var enabled = true
     override var thrusterLevel: Level? = centerExhaust?.level
     override var worldPosition: BlockPos? = center
@@ -54,8 +51,7 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
     override var thrusterPower: Double = KontraptionConfigs.kontraption.liquidFuelThrust.get()
     override val basePower: Double = KontraptionConfigs.kontraption.liquidFuelThrust.get()
 
-    //----------------stuff-----------------------
-
+    // ----------------stuff-----------------------
 
     var gasTank: IGasTank? = null
     var burnRemaining = 0.0
@@ -63,26 +59,30 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
 
     init {
         LongSupplier { (thrusterPower * 100 * 4).toLong() }
-        //fluidTanks.add(MultiblockFluidTank.create(10, tile))
-        //fuelTank = MultiblockFluidTank.input(this, tile, { 10 }, { fluid: FluidStack -> MekanismTags.Fluids.LAVA_LOOKUP.contains(fluid.fluid) })
-        gasTank = MultiblockChemicalTankBuilder.GAS.input(this, { (thrusterPower * 100 * 4).toLong() }, { gas: Gas -> gas === MekanismGases.HYDROGEN.get() },
-            ChemicalAttributeValidator.ALWAYS_ALLOW, null)
+        // fluidTanks.add(MultiblockFluidTank.create(10, tile))
+        // fuelTank = MultiblockFluidTank.input(this, tile, { 10 }, { fluid: FluidStack -> MekanismTags.Fluids.LAVA_LOOKUP.contains(fluid.fluid) })
+        gasTank =
+            MultiblockChemicalTankBuilder.GAS.input(
+                this, { (thrusterPower * 100 * 4).toLong() }, { gas: Gas -> gas === MekanismGases.HYDROGEN.get() },
+                ChemicalAttributeValidator.ALWAYS_ALLOW, null,
+            )
 
         gasTanks.add(gasTank)
     }
 
     override fun onCreated(world: Level?) {
-
-
         super.onCreated(world)
-        //smh my balls
+        // smh my balls
         ship = KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), center)
-                ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), center)
-        offset = Vector3d(1.0, 1.0, 1.0)
+            ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), center)
+        offset =
+            Vector3d(1.0, 1.0, 1.0)
                 .add(exhaustDirection.normal.toJOMLD().normalize().negate())
                 .mul(0.25 * exhaustDiameter)
-                .add(exhaustDirection.normal.toJOMLD()
-                        .mul(1.5)).toMinecraft()
+                .add(
+                    exhaustDirection.normal.toJOMLD()
+                        .mul(1.5),
+                ).toMinecraft()
         pos = centerExhaust?.blockPos?.offset(exhaustDirection.normal.multiply(1))
 
         thrusterPower = (KontraptionConfigs.kontraption.liquidFuelThrust.get() * innerVolume)
@@ -95,7 +95,6 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
         }
     }
 
-
     override fun tick(world: Level?): Boolean {
         val needsPacket = super.tick(world)
 
@@ -104,19 +103,19 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
                 burnFuel(world)
             }
         } else {
-            lastBurnRate = 0.0;
+            lastBurnRate = 0.0
         }
 
-        if (powered and enabled){
-
+        if (powered and enabled) {
             if (Dist.DEDICATED_SERVER.isDedicatedServer and (thrusterLevel != null)) {
-                particleDir = if (ship == null){
-                    exhaustDirection.normal.multiply(innerVolume).toJOMLD()
-                }else {
-                    ship!!.transform.shipToWorld.transformDirection(exhaustDirection.normal.multiply(innerVolume).toJOMLD())
-                }
+                particleDir =
+                    if (ship == null) {
+                        exhaustDirection.normal.multiply(innerVolume).toJOMLD()
+                    } else {
+                        ship!!.transform.shipToWorld.transformDirection(exhaustDirection.normal.multiply(innerVolume).toJOMLD())
+                    }
 
-                //thrusterLevel as ServerLevel
+                // thrusterLevel as ServerLevel
                 pos?.let { sendParticleData(thrusterLevel as ServerLevel, it.toDoubles(), particleDir) }
             }
         }
@@ -126,29 +125,41 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
     private fun burnFuel(world: Level) {
         val lastBurnRemaining: Double = burnRemaining
         var storedFuel: Double = gasTank!!.stored + burnRemaining
-        val toBurn = thrusterPower * KontraptionConfigs.kontraption.liquidFuelConsumption.get() //Math.min(Math.min(1.0, storedFuel), fuelAssemblies * MekanismGeneratorsConfig.generators.burnPerAssembly.get())
+        val toBurn = thrusterPower * KontraptionConfigs.kontraption.liquidFuelConsumption.get() // Math.min(Math.min(1.0, storedFuel), fuelAssemblies * MekanismGeneratorsConfig.generators.burnPerAssembly.get())
         storedFuel -= toBurn
-        if (storedFuel <= 0.0){
-            if (enabled == true){
+        if (storedFuel <= 0.0) {
+            if (enabled == true) {
                 disable()
             }
-        }else{
-            if (enabled == false){
+        } else {
+            if (enabled == false) {
                 enable()
             }
         }
         gasTank!!.setStackSize(storedFuel.toLong(), Action.EXECUTE)
         burnRemaining = storedFuel % 1
-        //heatCapacitor.handleHeat(toBurn * MekanismGeneratorsConfig.generators.energyPerFissionFuel.get().doubleValue())
+        // heatCapacitor.handleHeat(toBurn * MekanismGeneratorsConfig.generators.energyPerFissionFuel.get().doubleValue())
         // update previous burn
         lastBurnRate = toBurn
     }
 
-
-    private fun sendParticleData(level: Level, pos: Vec3, particleDir: Vector3d) {
+    private fun sendParticleData(
+        level: Level,
+        pos: Vec3,
+        particleDir: Vector3d,
+    ) {
         if (!isRemote && level is ServerLevel) {
             for (player in level.players()) {
-                level.sendParticles(player, ThrusterParticleData(particleDir.x.toDouble(), particleDir.y.toDouble(), particleDir.z.toDouble(), innerVolume.toDouble()), true, pos.x+0.5, pos.y+0.5, pos.z+0.5, 2*exhaustDiameter, offset.x, offset.y, offset.z, 0.0)
+                level.sendParticles(
+                    player,
+                    ThrusterParticleData(
+                        particleDir.x.toDouble(),
+                        particleDir.y.toDouble(),
+                        particleDir.z.toDouble(),
+                        innerVolume.toDouble(),
+                    ),
+                    true, pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 2 * exhaustDiameter, offset.x, offset.y, offset.z, 0.0,
+                )
             }
         }
     }
@@ -156,6 +167,4 @@ class LiquidFuelThrusterMultiblockData(tile: TileEntityLiquidFuelThrusterCasing)
     fun getMaxFluid(): Int {
         return height() * 4 * 1
     }
-
-
 }

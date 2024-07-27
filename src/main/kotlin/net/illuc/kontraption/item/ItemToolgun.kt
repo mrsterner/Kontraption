@@ -1,6 +1,5 @@
 package net.illuc.kontraption.item
 
-
 import mekanism.api.Action
 import mekanism.api.AutomationType
 import mekanism.api.NBTConstants
@@ -23,7 +22,6 @@ import net.illuc.kontraption.client.render.SelectionZoneRenderer
 import net.illuc.kontraption.config.KontraptionConfigs
 import net.illuc.kontraption.util.*
 import net.illuc.kontraption.util.KontraptionVSUtils.createNewShipWithBlocks
-import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -44,29 +42,40 @@ import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
 
-
-class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kontraption.toolgunChargeRate, KontraptionConfigs.kontraption.toolgunStorage, properties.rarity(Rarity.UNCOMMON)), IItemHUDProvider, IModeItem {
-
-    //TODO: Figure out how to do rendering stuff
+class ItemToolgun(properties: Properties) :
+    ItemEnergized(
+        KontraptionConfigs.kontraption.toolgunChargeRate,
+        KontraptionConfigs.kontraption.toolgunStorage,
+        properties.rarity(Rarity.UNCOMMON),
+    ),
+    IItemHUDProvider,
+    IModeItem {
+    // TODO: Figure out how to do rendering stuff
 
     var firstPosition: BlockPos? = null
     var secondPosition: BlockPos? = null
     var SelectionZone: RenderingData? = null
 
-    override fun use(level: Level, player: Player, interactionHand: InteractionHand): InteractionResultHolder<ItemStack> {
-        val clipResult = level.clip(
+    override fun use(
+        level: Level,
+        player: Player,
+        interactionHand: InteractionHand,
+    ): InteractionResultHolder<ItemStack> {
+        val clipResult =
+            level.clip(
                 ClipContext(
-                        (Vector3d(player.eyePosition.toJOML()).toMinecraft()),
-                        (player.eyePosition.toJOML()
-                                .add(0.5, 0.5, 0.5)
-                                .add(Vector3d(player.lookAngle.toJOML()).mul(10.0)) //distance
-                                ).toMinecraft(),
-                        ClipContext.Block.COLLIDER,
-                        ClipContext.Fluid.NONE,
-                        null
-                )
-        )
-        //player.sendMessage(TextComponent(" ${clipResult.blockPos}"), Util.NIL_UUID)
+                    (Vector3d(player.eyePosition.toJOML()).toMinecraft()),
+                    (
+                        player.eyePosition.toJOML()
+                            .add(0.5, 0.5, 0.5)
+                            .add(Vector3d(player.lookAngle.toJOML()).mul(10.0)) // distance
+                    ).toMinecraft(),
+                    ClipContext.Block.COLLIDER,
+                    ClipContext.Fluid.NONE,
+                    null,
+                ),
+            )
+        // player.sendMessage(TextComponent(" ${clipResult.blockPos}"), Util.NIL_UUID)
         player.playSound(MekanismSounds.BEEP.get(), 1F, 1F)
 
         val pos = clipResult.blockPos
@@ -78,24 +87,27 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
             }
             energyContainer.extract(energyPerUse, Action.EXECUTE, AutomationType.MANUAL)
         }
-        if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.ASSEMBLE){
+        if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.ASSEMBLE) {
             makeSelection(level, player, interactionHand, pos)
-        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.MOVE){
+        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.MOVE) {
             player.sendSystemMessage(Component.literal("Work in progress :P"))
-        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.LOCK){
+        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.LOCK) {
             player.sendSystemMessage(Component.literal("Work in progress :P"))
-        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.PUSH){
+        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.PUSH) {
             player.sendSystemMessage(Component.literal("Work in progress :P"))
-        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.ROTATE){
+        } else if (getMode(player.getItemInHand(interactionHand)) == ToolgunMode.ROTATE) {
             player.sendSystemMessage(Component.literal("Work in progress :P"))
         }
-
 
         return super.use(level, player, interactionHand)
     }
 
-    fun makeSelection(level: Level, player: Player, interactionHand: InteractionHand, pos: BlockPos){
-
+    fun makeSelection(
+        level: Level,
+        player: Player,
+        interactionHand: InteractionHand,
+        pos: BlockPos,
+    ) {
         if (!level.isClientSide) {
             println(level.getBlockState(pos))
 
@@ -103,14 +115,14 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
             if (player.isShiftKeyDown and (level.getBlockState(pos).isAir)) {
                 firstPosition = null
                 secondPosition = null
-                if (SelectionZone!=null) Renderer.removeRender(SelectionZone!!)
-                SelectionZone = null;
+                if (SelectionZone != null) Renderer.removeRender(SelectionZone!!)
+                SelectionZone = null
                 player.sendSystemMessage(Component.literal("Selection reset"))
 
-            // First pos selection
+                // First pos selection
             } else if (firstPosition == null) {
                 val res = raycast(level, player, ClipContext.Fluid.NONE)
-                if (res!=null && KontraptionVSUtils.getShipObjectManagingPos(level, res.blockPos) == null ) {
+                if (res != null && KontraptionVSUtils.getShipObjectManagingPos(level, res.blockPos) == null) {
                     firstPosition = res.blockPos
                     Mekanism.logger.info("first pos: $firstPosition")
                     player.sendSystemMessage(Component.literal("First pos selected"))
@@ -118,28 +130,33 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
                     player.sendSystemMessage(Component.literal("Selected position is on a ship!"))
                 }
 
-
-            // Second pos selection
+                // Second pos selection
             } else if (secondPosition == null) {
                 val res = raycast(level, player, ClipContext.Fluid.NONE)
-                if (res!=null && KontraptionVSUtils.getShipObjectManagingPos(level, res.blockPos) == null) {
-
-                    if (SelectionZone!=null) Renderer.removeRender(SelectionZone!!)
-                    SelectionZone = null;
+                if (res != null && KontraptionVSUtils.getShipObjectManagingPos(level, res.blockPos) == null) {
+                    if (SelectionZone != null) Renderer.removeRender(SelectionZone!!)
+                    SelectionZone = null
 
                     secondPosition = res.blockPos
                     Mekanism.logger.info("second pos: $secondPosition")
                     player.sendSystemMessage(Component.literal("Second pos selected"))
 
-                    val SZ = SelectionZoneRenderer(Vector3d(firstPosition!!.x.toDouble(),
-                            firstPosition!!.y.toDouble(), firstPosition!!.z.toDouble()),Vector3d(res.blockPos.x.toDouble(),res.blockPos.y.toDouble(),res.blockPos.z.toDouble()), Color.GREEN);
+                    val SZ =
+                        SelectionZoneRenderer(
+                            Vector3d(
+                                firstPosition!!.x.toDouble(),
+                                firstPosition!!.y.toDouble(),
+                                firstPosition!!.z.toDouble(),
+                            ),
+                            Vector3d(res.blockPos.x.toDouble(), res.blockPos.y.toDouble(), res.blockPos.z.toDouble()),
+                            Color.GREEN,
+                        )
                     SelectionZone = Renderer.addRender(SZ)
-
                 } else {
                     player.sendSystemMessage(Component.literal("Selected position is on a ship!"))
                 }
 
-            // Assembly
+                // Assembly
             } else {
                 player.playSound(MekanismSounds.BEEP.get(), 1F, 1.4F)
                 Mekanism.logger.info("now we do the assembly stuff")
@@ -162,7 +179,9 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
                 if (energyContainer == null || energyContainer.extract(energyPerUse, Action.SIMULATE, AutomationType.MANUAL).smallerThan(energyPerUse)) {
                     if (energyContainer != null) {
                         Mekanism.logger.info("Assembly failed! Not enough energy, $energyPerUse needed but had ${energyContainer.energy}")
-                        player.sendSystemMessage(Component.literal("Assembly failed! Not enough energy, $energyPerUse needed but had ${energyContainer.energy}"))
+                        player.sendSystemMessage(
+                            Component.literal("Assembly failed! Not enough energy, $energyPerUse needed but had ${energyContainer.energy}"),
+                        )
                     }
                 } else {
                     if (!set.isEmpty()) {
@@ -172,8 +191,8 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
                         player.sendSystemMessage(Component.literal("Assembled!"))
                     }
                 }
-                if (SelectionZone!=null) Renderer.removeRender(SelectionZone!!)
-                SelectionZone = null;
+                if (SelectionZone != null) Renderer.removeRender(SelectionZone!!)
+                SelectionZone = null
                 firstPosition = null
                 secondPosition = null
             }
@@ -181,37 +200,46 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
     }
 
     @Override
-    override fun inventoryTick(stack: ItemStack, level: Level, entity: Entity, slotId: Int, isSelected: Boolean) {
+    override fun inventoryTick(
+        stack: ItemStack,
+        level: Level,
+        entity: Entity,
+        slotId: Int,
+        isSelected: Boolean,
+    ) {
         super.inventoryTick(stack, level, entity, slotId, isSelected)
 
         if (isSelected && secondPosition == null) {
-            if (SelectionZone!=null) Renderer.removeRender(SelectionZone!!)
+            if (SelectionZone != null) Renderer.removeRender(SelectionZone!!)
             SelectionZone = null
             val res = raycast(level, entity as Player, ClipContext.Fluid.NONE)
             if (res != null) {
                 var otherPos = firstPosition
-                if (otherPos==null)  otherPos=res.blockPos
+                if (otherPos == null) otherPos = res.blockPos
 
-
-                val SZ = SelectionZoneRenderer(
+                val SZ =
+                    SelectionZoneRenderer(
                         Vector3d(
-                                otherPos!!.x.toDouble(),
-                                otherPos.y.toDouble(), otherPos.z.toDouble()
+                            otherPos!!.x.toDouble(),
+                            otherPos.y.toDouble(),
+                            otherPos.z.toDouble(),
                         ),
                         Vector3d(res.blockPos.x.toDouble(), res.blockPos.y.toDouble(), res.blockPos.z.toDouble()),
-                        Color.ORANGE
-                );
+                        Color.ORANGE,
+                    )
                 SelectionZone = Renderer.addRender(SZ)
-
             }
-        } else if (isSelected==false && secondPosition == null && SelectionZone!=null) {
+        } else if (isSelected == false && secondPosition == null && SelectionZone != null) {
             Renderer.removeRender(SelectionZone!!)
             SelectionZone = null
         }
-
     }
 
-    protected fun raycast(level: Level, player: Player, fluidMode: ClipContext.Fluid?): BlockHitResult? {
+    protected fun raycast(
+        level: Level,
+        player: Player,
+        fluidMode: ClipContext.Fluid?,
+    ): BlockHitResult? {
         val f = player.xRot
         val g = player.yRot
         val vec3 = player.eyePosition
@@ -226,16 +254,24 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
         return level.clip(ClipContext(vec3, vec32, ClipContext.Block.OUTLINE, fluidMode, player))
     }
 
-    override fun changeMode(player: Player, stack: ItemStack, shift: Int, displayChange: IModeItem.DisplayChange?) {
+    override fun changeMode(
+        player: Player,
+        stack: ItemStack,
+        shift: Int,
+        displayChange: IModeItem.DisplayChange?,
+    ) {
         val mode: ToolgunMode = getMode(stack)
         val newMode = mode.byIndex(mode.ordinal + shift)
         if (mode != newMode) {
             setMode(stack, newMode)
-            displayChange?.sendMessage(player) {KontraptionLang.MODE_CHANGE.translate(newMode)}
+            displayChange?.sendMessage(player) { KontraptionLang.MODE_CHANGE.translate(newMode) }
         }
     }
 
-    fun setMode(stack: ItemStack?, mode: ToolgunMode) {
+    fun setMode(
+        stack: ItemStack?,
+        mode: ToolgunMode,
+    ) {
         ItemDataUtils.setInt(stack, NBTConstants.MODE, mode.ordinal)
     }
 
@@ -243,20 +279,14 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
         return ToolgunMode.byIndexStatic(ItemDataUtils.getInt(itemStack, NBTConstants.MODE))
     }
 
-
     enum class ToolgunMode(private val langEntry: ILangEntry, private val color: EnumColor) : IHasTextComponent {
-        ASSEMBLE(KontraptionLang.ASSEMBLE, EnumColor.BRIGHT_GREEN) {
-        },
-        MOVE(KontraptionLang.MOVE, EnumColor.DARK_BLUE) {
-        },
-        LOCK(KontraptionLang.LOCK, EnumColor.RED) {
-        },
-        PUSH(KontraptionLang.PUSH, EnumColor.ORANGE) {
-        },
-        ROTATE(KontraptionLang.ROTATE, EnumColor.PURPLE) {
-        },
-        WELD(KontraptionLang.WELD, EnumColor.YELLOW) {
-        };
+        ASSEMBLE(KontraptionLang.ASSEMBLE, EnumColor.BRIGHT_GREEN),
+        MOVE(KontraptionLang.MOVE, EnumColor.DARK_BLUE),
+        LOCK(KontraptionLang.LOCK, EnumColor.RED),
+        PUSH(KontraptionLang.PUSH, EnumColor.ORANGE),
+        ROTATE(KontraptionLang.ROTATE, EnumColor.PURPLE),
+        WELD(KontraptionLang.WELD, EnumColor.YELLOW),
+        ;
 
         override fun getTextComponent(): Component {
             return langEntry.translateColored(color)
@@ -268,18 +298,23 @@ class ItemToolgun(properties: Properties) : ItemEnergized(KontraptionConfigs.kon
 
         companion object {
             private val MODES = values()
+
             fun byIndexStatic(index: Int): ToolgunMode {
                 return MathUtils.getByIndexMod(MODES, index)
             }
         }
     }
 
-
-    override fun addHUDStrings(list: MutableList<Component>?, player: Player?, stack: ItemStack?, slotType: EquipmentSlot?) {
+    override fun addHUDStrings(
+        list: MutableList<Component>?,
+        player: Player?,
+        stack: ItemStack?,
+        slotType: EquipmentSlot?,
+    ) {
         if (list != null) {
             val mode: ToolgunMode = getMode(stack)
-            //list.add(TextComponent("test"))
-            list.add(MekanismLang.MODE.translateColored(EnumColor.GRAY, mode));
-        };
+            // list.add(TextComponent("test"))
+            list.add(MekanismLang.MODE.translateColored(EnumColor.GRAY, mode))
+        }
     }
 }

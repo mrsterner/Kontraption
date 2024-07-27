@@ -20,9 +20,11 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
 import javax.annotation.Nonnull
 
-
-//class TileEntityIonThruster(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.ION_THRUSTER, pos, state) {
-class TileEntityIonThruster(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.ION_THRUSTER, pos, state), ThrusterInterface {
+// class TileEntityIonThruster(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.ION_THRUSTER, pos, state) {
+class TileEntityIonThruster(
+    pos: BlockPos?,
+    state: BlockState?,
+) : TileEntityMekanism(KontraptionBlocks.ION_THRUSTER, pos, state), ThrusterInterface {
     override var enabled = false
     override var thrusterLevel: Level? = null
     override val worldPosition: BlockPos? = pos
@@ -30,8 +32,6 @@ class TileEntityIonThruster(pos: BlockPos?, state: BlockState?) : TileEntityMeka
     override var powered: Boolean = true
     override val thrusterPower: Double = KontraptionConfigs.kontraption.ionThrust.get()
     override val basePower: Double = KontraptionConfigs.kontraption.ionThrust.get()
-
-
 
     private var clientEnergyUsed = FloatingLong.ZERO
 
@@ -49,7 +49,7 @@ class TileEntityIonThruster(pos: BlockPos?, state: BlockState?) : TileEntityMeka
         thrusterLevel = level as ServerLevel
         var toUse = FloatingLong.ZERO
         if (MekanismUtils.canFunction(this)) {
-            if(powered == true) {
+            if (powered == true) {
                 toUse = energyContainer!!.extract(energyContainer!!.energyPerTick, Action.SIMULATE, AutomationType.INTERNAL)
                 if (!toUse.isZero) {
                     energyContainer!!.extract(toUse, Action.EXECUTE, AutomationType.INTERNAL)
@@ -60,11 +60,10 @@ class TileEntityIonThruster(pos: BlockPos?, state: BlockState?) : TileEntityMeka
                     if (enabled == true) {
                         disable()
                     }
-
                 }
             }
         }
-        setActive(!toUse.isZero());
+        setActive(!toUse.isZero())
         clientEnergyUsed = toUse
     }
 }

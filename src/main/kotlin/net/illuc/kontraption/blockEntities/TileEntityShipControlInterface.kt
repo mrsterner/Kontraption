@@ -1,11 +1,15 @@
 package net.illuc.kontraption.blockEntities
 
+import com.mojang.logging.LogUtils
+import dan200.computercraft.shared.Capabilities
 import mekanism.common.integration.computer.ComputerException
+import mekanism.common.integration.computer.IComputerTile
 import mekanism.common.tile.base.TileEntityMekanism
 import net.illuc.kontraption.Kontraption
 import net.illuc.kontraption.KontraptionBlocks
 import net.illuc.kontraption.controls.KontraptionSeatedControllingPlayer
 import net.illuc.kontraption.entity.KontraptionShipMountingEntity
+import net.illuc.kontraption.peripherals.ShipControlInterfacePeripheral
 import net.illuc.kontraption.ship.KontraptionGyroControl
 import net.illuc.kontraption.ship.KontraptionThrusterControl
 import net.illuc.kontraption.util.KontraptionVSUtils.getShipObjectManagingPos
@@ -19,22 +23,24 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.HorizontalDirectionalBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.util.LazyOptional
 import org.joml.Quaterniond
 import org.joml.Vector3d
 import org.joml.Vector3dc
 import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.saveAttachment
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import java.util.*
-import mekanism.common.integration.computer.IComputerTile
-import com.mojang.logging.LogUtils
-import net.illuc.kontraption.peripherals.ShipControlInterfacePeripheral
-import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.common.util.LazyOptional
-import dan200.computercraft.shared.Capabilities
 
-class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(KontraptionBlocks.SHIP_CONTROL_INTERFACE, pos, state), IComputerTile {
+class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
+    TileEntityMekanism(
+        KontraptionBlocks.SHIP_CONTROL_INTERFACE,
+        pos,
+        state,
+    ),
+    IComputerTile {
     private val ship: ServerShip? get() = getShipObjectManagingPos((level as ServerLevel), this.blockPos)
     private var seatedControllingPlayer: KontraptionSeatedControllingPlayer? = null
     private val seats = mutableListOf<KontraptionShipMountingEntity>()
@@ -45,8 +51,10 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
     private var rotTarget = Quaterniond()
     private var velTarget = Vector3d()
 
-
-    override fun <T> getCapability(capability: Capability<T>, side: Direction?): LazyOptional<T> {
+    override fun <T> getCapability(
+        capability: Capability<T>,
+        side: Direction?,
+    ): LazyOptional<T> {
         return if (capability == Capabilities.CAPABILITY_PERIPHERAL as Capability<T>) {
             peripheralCapability as LazyOptional<T>
         } else {
@@ -54,9 +62,11 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
         }
     }
 
-
-
-    fun spawnSeat(blockPos: BlockPos, state: BlockState, level: ServerLevel): KontraptionShipMountingEntity {
+    fun spawnSeat(
+        blockPos: BlockPos,
+        state: BlockState,
+        level: ServerLevel,
+    ): KontraptionShipMountingEntity {
         val newPos = blockPos.relative(state.getValue(HorizontalDirectionalBlock.FACING))
         val newState = level.getBlockState(newPos)
         val newShape = newState.getShape(level, newPos)
@@ -65,76 +75,74 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
         if (!newState.isAir) {
             height = newShape.max(Direction.Axis.Y)
         }
-        val entity = Kontraption.KONTRAPTION_SHIP_MOUNTING_ENTITY_TYPE.create(level)!!.apply {
-            val seatEntityPos: Vector3dc = Vector3d(newPos.x + .5, (newPos.y - .5) + height, newPos.z + .5)
-            moveTo(seatEntityPos.x(), seatEntityPos.y(), seatEntityPos.z())
+        val entity =
+            Kontraption.KONTRAPTION_SHIP_MOUNTING_ENTITY_TYPE.create(level)!!.apply {
+                val seatEntityPos: Vector3dc = Vector3d(newPos.x + .5, (newPos.y - .5) + height, newPos.z + .5)
+                moveTo(seatEntityPos.x(), seatEntityPos.y(), seatEntityPos.z())
 
-            lookAt(
+                lookAt(
                     EntityAnchorArgument.Anchor.EYES,
-                    state.getValue(HORIZONTAL_FACING).normal.toDoubles().add(position())
-            )
+                    state.getValue(HORIZONTAL_FACING).normal.toDoubles().add(position()),
+                )
 
-            isController = true
-        }
+                isController = true
+            }
 
         ship?.saveAttachment<KontraptionSeatedControllingPlayer>(KontraptionSeatedControllingPlayer(Direction.SOUTH))
         level.addFreshEntityWithPassengers(entity)
         return entity
     }
 
-
     fun tick() {
         val ship = this.ship ?: return
 
         seatedControllingPlayer = ship.getAttachment(KontraptionSeatedControllingPlayer::class.java) ?: return
-        if (seats.size != 0){
-            if(seats[0].passengers.size != 0){
+        if (seats.size != 0) {
+            if (seats[0].passengers.size != 0) {
                 velTarget = Vector3d(seatedControllingPlayer!!.forwardImpulse, seatedControllingPlayer!!.upImpulse, seatedControllingPlayer!!.leftImpulse)
             }
         }
 
-
         val thrusters = KontraptionThrusterControl.getOrCreate(ship)
         val gyros = KontraptionGyroControl.getOrCreate(ship)
 
-
         thrusters.thrusterControlAll(
             this.direction.normal.toJOMLD(),
-            //-seatedControllingPlayer?.forwardImpulse!!.toDouble()
-            -velTarget.x
+            // -seatedControllingPlayer?.forwardImpulse!!.toDouble()
+            -velTarget.x,
         )
 
         thrusters.thrusterControlAll(
             this.direction.opposite.normal.toJOMLD(),
-            //seatedControllingPlayer?.forwardImpulse!!.toDouble(),
-            velTarget.x
+            // seatedControllingPlayer?.forwardImpulse!!.toDouble(),
+            velTarget.x,
         )
 
         thrusters.thrusterControlAll(
             Direction.UP.normal.toJOMLD(),
-            //seatedControllingPlayer?.upImpulse!!.toDouble()
-            velTarget.y
+            // seatedControllingPlayer?.upImpulse!!.toDouble()
+            velTarget.y,
         )
 
         thrusters.thrusterControlAll(
             Direction.DOWN.normal.toJOMLD(),
-            //-seatedControllingPlayer?.upImpulse!!.toDouble()
-            -velTarget.y
+            // -seatedControllingPlayer?.upImpulse!!.toDouble()
+            -velTarget.y,
         )
 
         thrusters.thrusterControlAll(
             this.direction.counterClockWise.normal.toJOMLD(),
-            //seatedControllingPlayer?.leftImpulse!!.toDouble()
-            velTarget.z
+            // seatedControllingPlayer?.leftImpulse!!.toDouble()
+            velTarget.z,
         )
 
         thrusters.thrusterControlAll(
             this.direction.clockWise.normal.toJOMLD(),
-           // -seatedControllingPlayer?.leftImpulse!!.toDouble()
-           -velTarget.z
+            // -seatedControllingPlayer?.leftImpulse!!.toDouble()
+            -velTarget.z,
         )
 
-        if(seatedControllingPlayer!!.pitch.absoluteValue+seatedControllingPlayer!!.yaw.absoluteValue+seatedControllingPlayer!!.roll.absoluteValue != 0.0){
+        if (seatedControllingPlayer!!.pitch.absoluteValue + seatedControllingPlayer!!.yaw.absoluteValue + seatedControllingPlayer!!.roll.absoluteValue != 0.0) {
             val sensitivity = 0.1
             val tmp = Quaterniond()
             tmp.fromAxisAngleRad(this.direction.clockWise.normal.toJOMLD(), seatedControllingPlayer?.pitch!!.toDouble() * sensitivity)
@@ -145,17 +153,20 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
             rotTarget.mul(tmp)
         }
 
-
-
         gyros.pointTowards(
             rotTarget,
-            1.0
+            1.0,
         )
     }
 
-    fun startRiding(player: Player, force: Boolean, blockPos: BlockPos, state: BlockState, level: ServerLevel): Boolean {
-
-        for (i in seats.size-1 downTo 0) {
+    fun startRiding(
+        player: Player,
+        force: Boolean,
+        blockPos: BlockPos,
+        state: BlockState,
+        level: ServerLevel,
+    ): Boolean {
+        for (i in seats.size - 1 downTo 0) {
             if (!seats[i].isVehicle) {
                 seats[i].kill()
                 seats.removeAt(i)
@@ -165,94 +176,118 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) : TileE
         }
 
         val seat = spawnSeat(blockPos, blockState, level)
-        //player.xRot = 0F
-        //player.yRot = 0F
-        //Minecraft.getInstance().options.sensitivity = -1/3.0
-        //GLFW.glfwSetInputMode(Minecraft.getInstance().getWindow().window, CURSOR, CURSOR_NORMAL)
+        // player.xRot = 0F
+        // player.yRot = 0F
+        // Minecraft.getInstance().options.sensitivity = -1/3.0
+        // GLFW.glfwSetInputMode(Minecraft.getInstance().getWindow().window, CURSOR, CURSOR_NORMAL)
         val ride = player.startRiding(seat, force)
         if (ride) {
             seats.add(seat)
         }
 
-
-
         return ride
     }
 
     fun enable() {
-        //idc if its against your will or not you WILL exist and you WILL like it
-
+        // idc if its against your will or not you WILL exist and you WILL like it
     }
 
-    fun sit(player: Player, force: Boolean = false): Boolean {
+    fun sit(
+        player: Player,
+        force: Boolean = false,
+    ): Boolean {
         // If player is already controlling the ship, open the helm menu
-        if (!force && player.vehicle?.type == Kontraption.KONTRAPTION_SHIP_MOUNTING_ENTITY_TYPE && seats.contains(player.vehicle as KontraptionShipMountingEntity))
-        {
+        if (!force && player.vehicle?.type == Kontraption.KONTRAPTION_SHIP_MOUNTING_ENTITY_TYPE && seats.contains(player.vehicle as KontraptionShipMountingEntity)) {
             return true
         }
 
-        //val seat = spawnSeat(blockPos, blockState, level as ServerLevel)
-        //control?.seatedPlayer = player
-        //return player.startRiding(seat, force)
+        // val seat = spawnSeat(blockPos, blockState, level as ServerLevel)
+        // control?.seatedPlayer = player
+        // return player.startRiding(seat, force)
 
         return startRiding(player, force, blockPos, blockState, level as ServerLevel)
-
     }
 
-
     public fun getRotation(): Map<String, Double> {
-        return(mapOf(
+        return(
+            mapOf(
                 Pair("x", rotTarget.x()),
                 Pair("y", rotTarget.y()),
                 Pair("z", rotTarget.z()),
-                Pair("w", rotTarget.w())
-        ))
+                Pair("w", rotTarget.w()),
+            )
+        )
     }
+
     public fun getMovement(): Map<String, Double> {
-        return(mapOf(
+        return(
+            mapOf(
                 Pair("x", velTarget.x()),
                 Pair("y", velTarget.y()),
-                Pair("z", velTarget.z())
-        ))
+                Pair("z", velTarget.z()),
+            )
+        )
     }
 
     public fun getPosition(): Map<String, Double> {
         val a = ship!!.transform.positionInWorld
-        return(mapOf(
+        return(
+            mapOf(
                 Pair("x", a.x()),
                 Pair("y", a.y()),
-                Pair("z", a.z())
-        ))
+                Pair("z", a.z()),
+            )
+        )
     }
-    public fun getWeight(): Double {
-        //TODO: i think using the peripheral while not on ship might crash the game because ship is null
-        return(ship!!.inertiaData.mass)
 
+    public fun getWeight(): Double {
+        // TODO: i think using the peripheral while not on ship might crash the game because ship is null
+        return(ship!!.inertiaData.mass)
     }
+
     public fun getSlug(): String {
         return(ship!!.slug.toString())
     }
+
     public fun getVelocity(): Map<String, Double> {
         val a = ship!!.velocity
-        return(mapOf(
+        return(
+            mapOf(
                 Pair("x", a.x()),
                 Pair("y", a.y()),
-                Pair("z", a.z())
-        ))
+                Pair("z", a.z()),
+            )
+        )
     }
-    public fun setMovement(x: Double, y: Double, z: Double) {
+
+    public fun setMovement(
+        x: Double,
+        y: Double,
+        z: Double,
+    ) {
         velTarget = Vector3d(Math.max(-1.0, Math.min(1.0, x)), Math.max(-1.0, Math.min(1.0, y)), Math.max(-1.0, Math.min(1.0, z)))
     }
 
-    public fun setRotation(x: Double, y: Double, z: Double, w: Double) {
-        if(abs(x * x + y * y + z * z + w * w - 1.0) < 0.01){
+    public fun setRotation(
+        x: Double,
+        y: Double,
+        z: Double,
+        w: Double,
+    ) {
+        if (abs(x * x + y * y + z * z + w * w - 1.0) < 0.01) {
             rotTarget = Quaterniond(x, y, z, w)
-        }else{
-            throw ComputerException(("Invalid quaternion " .. abs(x * x + y * y + z * z + w * w).toString()).toString()) //needs 2 tostrings for funny
+        } else {
+            throw ComputerException(
+                ("Invalid quaternion "..abs(x * x + y * y + z * z + w * w).toString()).toString(),
+            ) // needs 2 tostrings for funny
         }
     }
 
-    public fun rotateAlongAxis(x: Double, y: Double, z: Double) {
+    public fun rotateAlongAxis(
+        x: Double,
+        y: Double,
+        z: Double,
+    ) {
         val tmp = Quaterniond()
         tmp.fromAxisAngleRad(this.direction.clockWise.normal.toJOMLD(), z * 0.1)
         rotTarget.mul(tmp)

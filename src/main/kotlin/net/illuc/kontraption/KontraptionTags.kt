@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.FluidTags
 import net.minecraft.tags.TagKey
 import net.minecraft.world.level.material.Fluid
-import net.minecraftforge.registries.ForgeRegistries
-
 
 object KontraptionTags {
     /**
@@ -22,7 +20,6 @@ object KontraptionTags {
 
     object Fluids {
         fun init() {}
-
 
         /*val BIOETHANOL = forgeTag("bioethanol")
         val BIOETHANOL_LOOKUP = LazyTagLookup.create(ForgeRegistries.FLUIDS, BIOETHANOL)
@@ -40,6 +37,7 @@ object KontraptionTags {
         val THRUSTER_FUEL = tag("thruster_fuel")
         val THRUSTER_FUEL_LOOKUP = LazyTagLookup.create(ChemicalTags.GAS, THRUSTER_FUEL)
         val AWFUL_THRUSTER_FUEL = tag("awful_thruster_fuel")
+
         /*val DEUTERIUM = tag("deuterium")
         val DEUTERIUM_LOOKUP = LazyTagLookup.create(ChemicalTags.GAS, DEUTERIUM)
         val TRITIUM = tag("tritium")

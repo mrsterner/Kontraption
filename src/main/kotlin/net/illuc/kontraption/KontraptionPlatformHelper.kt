@@ -5,5 +5,8 @@ import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
 
 interface KontraptionPlatformHelper {
-    fun createCreativeTab(id: ResourceLocation, stack: () -> ItemStack): CreativeModeTab
+    fun createCreativeTab(
+        id: ResourceLocation,
+        stack: () -> ItemStack,
+    ): CreativeModeTab
 }

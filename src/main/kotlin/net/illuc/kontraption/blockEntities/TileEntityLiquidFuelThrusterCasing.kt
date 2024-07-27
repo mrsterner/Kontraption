@@ -10,12 +10,16 @@ import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThruste
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
-
-open class TileEntityLiquidFuelThrusterCasing(blockProvider: IBlockProvider?, pos: BlockPos?, state: BlockState?) : TileEntityMultiblock<LiquidFuelThrusterMultiblockData?>(blockProvider, pos, state), IHasGasMode{
+open class TileEntityLiquidFuelThrusterCasing(blockProvider: IBlockProvider?, pos: BlockPos?, state: BlockState?) :
+    TileEntityMultiblock<LiquidFuelThrusterMultiblockData?>(
+        blockProvider,
+        pos,
+        state,
+    ),
+    IHasGasMode {
     constructor(pos: BlockPos?, state: BlockState?) : this(KontraptionBlocks.LIQUID_FUEL_THRUSTER_CASING, pos, state)
 
     lateinit var prevMultiblock: LiquidFuelThrusterMultiblockData
-
 
     override fun createMultiblock(): LiquidFuelThrusterMultiblockData {
         return LiquidFuelThrusterMultiblockData(this)
@@ -34,14 +38,12 @@ open class TileEntityLiquidFuelThrusterCasing(blockProvider: IBlockProvider?, po
     }
 
     override fun onUpdateServer() {
-
         super.onUpdateServer()
     }
 
-    //actually fuck it let the baller remove the thruster 913482 times
-    //TODO when the fuck did i write this and why did i think this was a good idea :sob:
+    // actually fuck it let the baller remove the thruster 913482 times
+    // TODO when the fuck did i write this and why did i think this was a good idea :sob:
     override fun structureChanged(multiblock: LiquidFuelThrusterMultiblockData?) {
-
         if (multiblock!!.isFormed == false) {
             prevMultiblock.disable()
         }
@@ -52,8 +54,7 @@ open class TileEntityLiquidFuelThrusterCasing(blockProvider: IBlockProvider?, po
     override fun nextMode(tank: Int) {
         if (tank === 0) {
             val multiblock: LiquidFuelThrusterMultiblockData? = multiblock
-            //multiblock.setDumpMode(multiblock.dumpMode.getNext())
+            // multiblock.setDumpMode(multiblock.dumpMode.getNext())
         }
-
     }
 }

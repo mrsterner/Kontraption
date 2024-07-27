@@ -1,26 +1,18 @@
 package net.illuc.kontraption
 
 import mekanism.common.registration.impl.ParticleTypeDeferredRegister
-import net.illuc.kontraption.client.ThrusterParticle
 import net.illuc.kontraption.particle.BulletParticleType
 import net.illuc.kontraption.particle.MuzzleFlashParticleType
 import net.illuc.kontraption.particle.ThrusterParticleType
-import net.illuc.kontraption.particles.BulletParticleData
-import net.illuc.kontraption.particles.ThrusterParticleData
-import net.minecraft.core.particles.ParticleType
-import net.minecraft.core.particles.SimpleParticleType
 import net.minecraftforge.eventbus.api.IEventBus
-import net.minecraftforge.registries.DeferredRegister
-import net.minecraftforge.registries.ForgeRegistries
-
 
 object KontraptionParticleTypes {
     val PARTICLE_TYPES = ParticleTypeDeferredRegister(Kontraption.MODID)
 
-    //val PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Kontraption.MODID)
+    // val PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Kontraption.MODID)
 
     val THRUSTER = PARTICLE_TYPES.register("thruster") { ThrusterParticleType() }
-    val MUZZLE_FLASH = PARTICLE_TYPES.register("muzzle_flash") { MuzzleFlashParticleType() }//was SimpleParticleType(true)
+    val MUZZLE_FLASH = PARTICLE_TYPES.register("muzzle_flash") { MuzzleFlashParticleType() } // was SimpleParticleType(true)
     val BULLET = PARTICLE_TYPES.register("bullet") { BulletParticleType() }
     /*val LASER = PARTICLE_TYPES.register("laser") { LaserParticleType() }
     val JETPACK_FLAME = PARTICLE_TYPES.registerBasicParticle("jetpack_flame")

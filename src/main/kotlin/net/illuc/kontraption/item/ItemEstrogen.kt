@@ -13,7 +13,11 @@ import net.minecraft.world.item.UseAnim
 import net.minecraft.world.level.Level
 
 class ItemEstrogen(properties: Properties) : Item(properties) {
-    override fun use(level: Level, player: Player, interactionHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(
+        level: Level,
+        player: Player,
+        interactionHand: InteractionHand,
+    ): InteractionResultHolder<ItemStack> {
         player.startUsingItem(interactionHand)
 
         return InteractionResultHolder.success(player.getItemInHand(interactionHand))
@@ -27,8 +31,12 @@ class ItemEstrogen(properties: Properties) : Item(properties) {
         return UseAnim.EAT
     }
 
-    override fun finishUsingItem(stack: ItemStack, level: Level, livingEntity: LivingEntity): ItemStack {
-        if(Mekanism.hooks.WildfireGenderModLoaded){
+    override fun finishUsingItem(
+        stack: ItemStack,
+        level: Level,
+        livingEntity: LivingEntity,
+    ): ItemStack {
+        if (Mekanism.hooks.WildfireGenderModLoaded) {
             WildfireGender.getPlayerById(livingEntity.uuid)?.updateGender(GenderPlayer.Gender.FEMALE)
         }
         return super.finishUsingItem(stack, level, livingEntity)

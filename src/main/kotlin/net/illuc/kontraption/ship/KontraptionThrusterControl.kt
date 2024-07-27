@@ -9,11 +9,7 @@ import org.joml.Vector3d
 import org.joml.Vector3i
 import org.valkyrienskies.core.api.ships.*
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl
-import org.valkyrienskies.core.util.x
-import org.valkyrienskies.core.util.y
-import org.valkyrienskies.core.util.z
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
@@ -26,49 +22,65 @@ class KontraptionThrusterControl : ShipForcesInducer {
 
     override fun applyForces(physShip: PhysShip) {
         physShip as PhysShipImpl
-        physShip.applyInvariantForce(physShip.poseVel.vel.negate(Vector3d()).mul(physShip.inertia.shipMass).mul(KontraptionConfigs.kontraption.dampeningStrength.get()))
+        physShip.applyInvariantForce(
+            physShip.poseVel.vel.negate(
+                Vector3d(),
+            ).mul(physShip.inertia.shipMass).mul(KontraptionConfigs.kontraption.dampeningStrength.get()),
+        )
         thrusters.forEach {
             val (position, forceDirection, forceStrength, be) = it
-            //be.enable()
-            if (forceStrength != 0.0){
+            // be.enable()
+            if (forceStrength != 0.0) {
                 val tForce = physShip.transform.shipToWorld.transformDirection(forceDirection, Vector3d())
-                //val tPos2 = position.toDouble().add(0.5, 0.5, 0.5).sub(physShip.transform.positionInShip)
-                val tPos = Vector3d(0.0, 0.0, 0.0) //position.toDouble().add(0.5, 0.5, 0.5).sub(physShip.transform.positionInShip)
+                // val tPos2 = position.toDouble().add(0.5, 0.5, 0.5).sub(physShip.transform.positionInShip)
+                val tPos = Vector3d(0.0, 0.0, 0.0) // position.toDouble().add(0.5, 0.5, 0.5).sub(physShip.transform.positionInShip)
 
                 if (forceDirection.isFinite) {
-                    var forceFinal = forceStrength*thrusterStrength
-                    if (forceFinal > 0){
+                    var forceFinal = forceStrength * thrusterStrength
+                    if (forceFinal > 0) {
                         be.powered = true
-                        //credits to cjverycool, username checks out (cjcool1 on disc)
-                        ///Artificial Gradient Speed Limit, gradually reduces thrust in the side that exceeds cap by interpolation
+                        // credits to cjverycool, username checks out (cjcool1 on disc)
+                        // /Artificial Gradient Speed Limit, gradually reduces thrust in the side that exceeds cap by interpolation
                         val thrustBufferRegion = 20
-                        val dropOffThreshold = KontraptionConfigs.kontraption.thrusterSpeedLimit.get() - thrustBufferRegion;
-                        val dirVelocity = Vector3d(tForce).mul(physShip.poseVel.vel);
+                        val dropOffThreshold = KontraptionConfigs.kontraption.thrusterSpeedLimit.get() - thrustBufferRegion
+                        val dirVelocity = Vector3d(tForce).mul(physShip.poseVel.vel)
                         val dotVelocity = tForce.dot(physShip.poseVel.vel)
-                        if(dirVelocity.length() > dropOffThreshold){
-                            var dropoffCoefficient = max(0.0, min(1.0,(dropOffThreshold-dirVelocity.length())/thrustBufferRegion+1))
-                            //Mekanism.logger.info(forceFinal);
-                            dropoffCoefficient = if(dotVelocity > 0){
-                                dropoffCoefficient;
-                            }else{
-                                2-(dropoffCoefficient);//set this to 0 if you dont need le boost
-                            }
+                        if (dirVelocity.length() > dropOffThreshold) {
+                            var dropoffCoefficient =
+                                max(0.0, min(1.0, (dropOffThreshold - dirVelocity.length()) / thrustBufferRegion + 1))
+                            // Mekanism.logger.info(forceFinal);
+                            dropoffCoefficient =
+                                if (dotVelocity > 0) {
+                                    dropoffCoefficient
+                                } else {
+                                    2 - (dropoffCoefficient); // set this to 0 if you dont need le boost
+                                }
                             forceFinal *= dropoffCoefficient
                         }
                         physShip.applyInvariantForceToPos(tForce.mul(forceFinal), tPos)
                     }
                 }
-            }else{
+            } else {
                 be.powered = false
             }
         }
     }
 
-    fun addThruster(pos: BlockPos, force: Vector3d, tier: Double, thruster: ThrusterInterface) {
+    fun addThruster(
+        pos: BlockPos,
+        force: Vector3d,
+        tier: Double,
+        thruster: ThrusterInterface,
+    ) {
         thrusters.add(Thruster(pos.toJOML(), force, tier, thruster))
     }
 
-    fun removeThruster(pos: BlockPos, force: Vector3d, tier: Double, thruster: ThrusterInterface) {
+    fun removeThruster(
+        pos: BlockPos,
+        force: Vector3d,
+        tier: Double,
+        thruster: ThrusterInterface,
+    ) {
         thrusters.remove(Thruster(pos.toJOML(), force, tier, thruster))
     }
 
@@ -76,14 +88,17 @@ class KontraptionThrusterControl : ShipForcesInducer {
         thrusters.removeAll { it.position == pos.toJOML() }
     }
 
-    fun thrusterControlAll(forceDirection: Vector3d, power: Double) {
-        //TODO you want prob a hashmap with directions as keys
+    fun thrusterControlAll(
+        forceDirection: Vector3d,
+        power: Double,
+    ) {
+        // TODO you want prob a hashmap with directions as keys
         thrusters.forEach {
-            if (it.forceDirection == forceDirection){
+            if (it.forceDirection == forceDirection) {
                 val (pos, forceDir, tier, be) = it
                 stopThruster(pos.toBlockPos())
-                addThruster(pos.toBlockPos(), forceDir, power*it.thruster.thrusterPower, be)
-                //println("INSANITY " + tier + " " + power*it.thruster.thrusterPower)
+                addThruster(pos.toBlockPos(), forceDir, power * it.thruster.thrusterPower, be)
+                // println("INSANITY " + tier + " " + power*it.thruster.thrusterPower)
             }
         }
     }

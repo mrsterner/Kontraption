@@ -19,9 +19,7 @@ import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.ships.setAttachment
 import org.valkyrienskies.mod.api.SeatedControllingPlayer
 
-
 open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountingEntity>, level: Level) : Entity(type, level) {
-
     // Decides if this entity controlls the ship it is in.
     // Only needs to be set serverside
     var isController = false
@@ -41,8 +39,9 @@ open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountin
             return
         }
 
-        if (getShipObjectManagingPos(level(), blockPosition()) != null)
+        if (getShipObjectManagingPos(level(), blockPosition()) != null) {
             sendDrivingPacket()
+        }
     }
 
     override fun readAdditionalSaveData(compound: CompoundTag?) {
@@ -55,9 +54,10 @@ open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountin
     }
 
     override fun remove(removalReason: RemovalReason) {
-        if (this.isController && !level().isClientSide)
+        if (this.isController && !level().isClientSide) {
             (getShipObjectManagingPos(level(), blockPosition()) as LoadedServerShip?)
-                    ?.setAttachment<SeatedControllingPlayer>(null)
+                ?.setAttachment<SeatedControllingPlayer>(null)
+        }
         super.remove(removalReason)
     }
 
@@ -65,45 +65,85 @@ open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountin
         if (!level().isClientSide) return
         // qhar
         val opts = Minecraft.getInstance().options
-        val forward   = opts.keyUp.isDown
-        val backward  = opts.keyDown.isDown
-        val left      = opts.keyLeft.isDown
-        val right     = opts.keyRight.isDown
-        val up        = KontraptionKeyBindings.shipUp.get().isDown
-        val down      = KontraptionKeyBindings.shipDown.get().isDown
-        val pitchUp   = KontraptionKeyBindings.pitchUp.get().isDown
+        val forward = opts.keyUp.isDown
+        val backward = opts.keyDown.isDown
+        val left = opts.keyLeft.isDown
+        val right = opts.keyRight.isDown
+        val up = KontraptionKeyBindings.shipUp.get().isDown
+        val down = KontraptionKeyBindings.shipDown.get().isDown
+        val pitchUp = KontraptionKeyBindings.pitchUp.get().isDown
         val pitchDown = KontraptionKeyBindings.pitchDown.get().isDown
-        val yawUp     = KontraptionKeyBindings.yawUp.get().isDown
-        val yawDown   = KontraptionKeyBindings.yawDown.get().isDown
-        val rollUp    = KontraptionKeyBindings.rollUp.get().isDown
-        val rollDown  = KontraptionKeyBindings.rollDown.get().isDown
-
+        val yawUp = KontraptionKeyBindings.yawUp.get().isDown
+        val yawDown = KontraptionKeyBindings.yawDown.get().isDown
+        val rollUp = KontraptionKeyBindings.rollUp.get().isDown
+        val rollDown = KontraptionKeyBindings.rollDown.get().isDown
 
         val impulse = Vector3d()
-        impulse.z = if (forward == backward) 0.0 else if (forward) 1.0 else -1.0
-        impulse.x = if (left == right) 0.0 else if (left) -1.0 else 1.0
-        impulse.y = if (up == down) 0.0 else if (up) 1.0 else -1.0
+        impulse.z =
+            if (forward == backward) {
+                0.0
+            } else if (forward) {
+                1.0
+            } else {
+                -1.0
+            }
+        impulse.x =
+            if (left == right) {
+                0.0
+            } else if (left) {
+                -1.0
+            } else {
+                1.0
+            }
+        impulse.y =
+            if (up == down) {
+                0.0
+            } else if (up) {
+                1.0
+            } else {
+                -1.0
+            }
 
         val x = DoubleArray(1)
         val y = DoubleArray(1)
-        GLFW.glfwGetCursorPos(Minecraft.getInstance().getWindow().window, x, y);
+        GLFW.glfwGetCursorPos(Minecraft.getInstance().getWindow().window, x, y)
         val rotation = Vector3d()
-        rotation.y = if (yawUp == yawDown) 0.0 else if (yawUp) -1.0 else 1.0
-        rotation.x = if (pitchUp == pitchDown) 0.0 else if (pitchUp) -1.0 else 1.0
+        rotation.y =
+            if (yawUp == yawDown) {
+                0.0
+            } else if (yawUp) {
+                -1.0
+            } else {
+                1.0
+            }
+        rotation.x =
+            if (pitchUp == pitchDown) {
+                0.0
+            } else if (pitchUp) {
+                -1.0
+            } else {
+                1.0
+            }
 
-        //rotation.y = -Math.round((x[0]-Minecraft.getInstance().getWindow().width/2)/Minecraft.getInstance().getWindow().width * 100.0) / 100.0 //
-        //rotation.x = Math.round(((y[0]-Minecraft.getInstance().getWindow().height/2)/Minecraft.getInstance().getWindow().height) * 100.0) / 100.0 //
-        rotation.z = if (rollUp == rollDown) 0.0 else if (rollUp) 1.0 else -1.0
+        // rotation.y = -Math.round((x[0]-Minecraft.getInstance().getWindow().width/2)/Minecraft.getInstance().getWindow().width * 100.0) / 100.0 //
+        // rotation.x = Math.round(((y[0]-Minecraft.getInstance().getWindow().height/2)/Minecraft.getInstance().getWindow().height) * 100.0) / 100.0 //
+        rotation.z =
+            if (rollUp == rollDown) {
+                0.0
+            } else if (rollUp) {
+                1.0
+            } else {
+                -1.0
+            }
 
+        Kontraption.packetHandler().sendToServer(
+            PacketKontraptionDriving(
+                Vector3d(impulse.x(), impulse.y(), impulse.z()),
+                Vector3d(rotation.x(), rotation.y(), rotation.z()),
+            ),
+        )
 
-
-        Kontraption.packetHandler().sendToServer(PacketKontraptionDriving(
-            Vector3d(impulse.x(), impulse.y(), impulse.z()),
-            Vector3d(rotation.x(), rotation.y(), rotation.z())
-        ))
-
-
-        //KontraptionPacketPlayerDriving(impulse, rotation).sendToServer()
+        // KontraptionPacketPlayerDriving(impulse, rotation).sendToServer()
     }
 
     override fun getControllingPassenger(): LivingEntity? {

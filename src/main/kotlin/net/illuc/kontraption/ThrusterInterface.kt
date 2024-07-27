@@ -16,26 +16,26 @@ interface ThrusterInterface {
     val thrusterPower: Double
     val basePower: Double
     var powered: Boolean
+
     fun enable() {
         if (thrusterLevel !is ServerLevel) return
         println("ENABLED")
         enabled = true
         if (worldPosition != null) {
-            val ship = KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), worldPosition)
+            val ship =
+                KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), worldPosition)
                     ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), worldPosition)
                     ?: return
 
             KontraptionThrusterControl.getOrCreate(ship).let {
                 it.stopThruster(worldPosition!!)
                 it.addThruster(
-                        worldPosition!!,
-                        this.forceDirection
-                                .normal
-                                .toJOMLD(),
-                        thrusterPower,
-                        this
-
-
+                    worldPosition!!,
+                    this.forceDirection
+                        .normal
+                        .toJOMLD(),
+                    thrusterPower,
+                    this,
                 )
             }
         }
@@ -48,10 +48,9 @@ interface ThrusterInterface {
         enabled = false
 
         KontraptionThrusterControl.getOrCreate(
-                KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), worldPosition)
-                        ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), worldPosition)
-                        ?: return
+            KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), worldPosition)
+                ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), worldPosition)
+                ?: return,
         ).stopThruster(worldPosition!!)
     }
-
 }

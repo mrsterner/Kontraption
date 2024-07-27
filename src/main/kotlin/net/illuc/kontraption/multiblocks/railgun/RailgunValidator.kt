@@ -16,16 +16,12 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.ChunkAccess
 import java.util.*
 
-
-class RailgunValidator : CuboidStructureValidator<RailgunMultiblockData>(){
-
-
+class RailgunValidator : CuboidStructureValidator<RailgunMultiblockData>() {
     val MIN_CUBOID: VoxelCuboid = VoxelCuboid(3, 3, 3)
 
     val MAX_CUBOID: VoxelCuboid = VoxelCuboid(18, 18, 18)
 
     var pickedSide: Direction? = null
-
 
     override fun getCasingType(state: BlockState?): FormationProtocol.CasingType {
         val block: Block = state!!.block
@@ -39,9 +35,7 @@ class RailgunValidator : CuboidStructureValidator<RailgunMultiblockData>(){
             return CasingType.OTHER
         }
         return CasingType.INVALID
-
     }
-
 
     override fun getStructureRequirement(pos: BlockPos): StructureRequirement {
         val relative = cuboid.getWallRelative(pos)
@@ -49,30 +43,28 @@ class RailgunValidator : CuboidStructureValidator<RailgunMultiblockData>(){
             println(pos)
             return if (!relative.isOnEdge) {
                 var curside: Direction? = null
-                if(pos.y == cuboid.maxPos.y){
+                if (pos.y == cuboid.maxPos.y) {
                     curside = Direction.UP
-                }else if(pos.x == cuboid.maxPos.x){
+                } else if (pos.x == cuboid.maxPos.x) {
                     curside = Direction.EAST
-                }else if(pos.z == cuboid.maxPos.z){
+                } else if (pos.z == cuboid.maxPos.z) {
                     curside = Direction.SOUTH
-                }else if(pos.y == cuboid.minPos.y){
+                } else if (pos.y == cuboid.minPos.y) {
                     curside = Direction.DOWN
-                }else if(pos.x == cuboid.minPos.x){
+                } else if (pos.x == cuboid.minPos.x) {
                     curside = Direction.WEST
-                }else if(pos.z == cuboid.minPos.z){
+                } else if (pos.z == cuboid.minPos.z) {
                     curside = Direction.NORTH
                 }
 
-                if (pickedSide == null){
+                if (pickedSide == null) {
                     pickedSide = curside
                     println("inner")
                     StructureRequirement.INNER
-                }else{
-
+                } else {
                     println("other")
                     StructureRequirement.OTHER
                 }
-
             } else {
                 println("other")
                 StructureRequirement.OTHER
@@ -82,20 +74,21 @@ class RailgunValidator : CuboidStructureValidator<RailgunMultiblockData>(){
     }
 
     override fun precheck(): Boolean {
-        cuboid = StructureHelper.fetchCuboid(
-            structure,
-            MIN_CUBOID,
-            MAX_CUBOID,
-            (CuboidSide.SIDES.toSet()),
-            8
-        )
+        cuboid =
+            StructureHelper.fetchCuboid(
+                structure,
+                MIN_CUBOID,
+                MAX_CUBOID,
+                (CuboidSide.SIDES.toSet()),
+                8,
+            )
         println("cuboid: " + (cuboid != null))
         return cuboid != null
     }
 
     override fun postcheck(
         structure: RailgunMultiblockData?,
-        chunkMap: Long2ObjectMap<ChunkAccess>?
+        chunkMap: Long2ObjectMap<ChunkAccess>?,
     ): FormationResult? {
         println("postcheck")
         return FormationResult.SUCCESS

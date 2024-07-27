@@ -6,8 +6,11 @@ import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThruste
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
-
-class TileEntityLiquidFuelThrusterExhaust(pos: BlockPos?, state: BlockState?) : TileEntityLiquidFuelThrusterCasing(KontraptionBlocks.LIQUID_FUEL_THRUSTER_EXHAUST, pos, state) {
+class TileEntityLiquidFuelThrusterExhaust(pos: BlockPos?, state: BlockState?) : TileEntityLiquidFuelThrusterCasing(
+    KontraptionBlocks.LIQUID_FUEL_THRUSTER_EXHAUST,
+    pos,
+    state,
+) {
    /* @Nonnull
     protected override fun getInitialFluidTanks(listener: IContentsListener?): IFluidTankHolder {
         return IFluidTankHolder { side: Direction? ->
@@ -20,16 +23,18 @@ class TileEntityLiquidFuelThrusterExhaust(pos: BlockPos?, state: BlockState?) : 
         val needsPacket: Boolean = super.onUpdateServer(multiblock)
         if (multiblock != null) {
             if (multiblock.isFormed()) {
-                //FluidUtils.emit(multiblock.getDirectionsToEmit(getBlockPos()), multiblock.ventTank, this)
+                // FluidUtils.emit(multiblock.getDirectionsToEmit(getBlockPos()), multiblock.ventTank, this)
             }
         }
         return needsPacket
     }
 
     override fun persists(type: SubstanceType): Boolean {
-        //Do not handle fluid when it comes to syncing it/saving this tile to disk
+        // Do not handle fluid when it comes to syncing it/saving this tile to disk
         return if (type == SubstanceType.GAS) {
             false
-        } else super.persists(type)
+        } else {
+            super.persists(type)
+        }
     }
 }

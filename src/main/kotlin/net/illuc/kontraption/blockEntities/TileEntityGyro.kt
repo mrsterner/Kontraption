@@ -29,7 +29,6 @@ class TileEntityGyro(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(Ko
 
     private var clientEnergyUsed = FloatingLong.ZERO
 
-
     private var energyContainer: MachineEnergyContainer<TileEntityGyro>? = null
 
     @Nonnull
@@ -37,43 +36,39 @@ class TileEntityGyro(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(Ko
         val builder = EnergyContainerHelper.forSide { this.direction }
         builder.addContainer(MachineEnergyContainer.input(this, listener).also { energyContainer = it }, RelativeSide.BACK)
         return builder.build()
-
     }
-
 
     override fun onUpdateServer() {
         super.onUpdateServer()
         var toUse = FloatingLong.ZERO
         if (MekanismUtils.canFunction(this)) {
-            if(powered == true) {
+            if (powered == true) {
                 toUse = energyContainer!!.extract(energyContainer!!.energyPerTick, Action.SIMULATE, AutomationType.INTERNAL)
                 if (!toUse.isZero) {
                     energyContainer!!.extract(toUse, Action.EXECUTE, AutomationType.INTERNAL)
                     if (enabled == false) {
                         enable()
                     }
-
                 } else {
                     if (enabled == true) {
                         disable()
                     }
-
                 }
             }
         }
-        setActive(!toUse.isZero());
+        setActive(!toUse.isZero())
         clientEnergyUsed = toUse
     }
 
     private fun chargeHandler(itemHandlerCap: Optional<out IItemHandler>): Boolean {
-        //Ensure that we have an item handler capability, because if for example the player is dead we will not
+        // Ensure that we have an item handler capability, because if for example the player is dead we will not
         if (itemHandlerCap.isPresent()) {
             val itemHandler: IItemHandler = itemHandlerCap.get()
             val slots = itemHandler.slots
             for (slot in 0 until slots) {
                 val stack = itemHandler.getStackInSlot(slot)
                 if (!stack.isEmpty && provideEnergy(EnergyCompatUtils.getStrictEnergyHandler(stack))) {
-                    //Only allow charging one item per player each check
+                    // Only allow charging one item per player each check
                     return true
                 }
             }
@@ -81,18 +76,24 @@ class TileEntityGyro(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(Ko
         return false
     }
 
-
-    private fun provideEnergy(@Nullable energyHandler: IStrictEnergyHandler?): Boolean {
+    private fun provideEnergy(
+        @Nullable energyHandler: IStrictEnergyHandler?,
+    ): Boolean {
         if (energyHandler == null) {
             return false
         }
         val energyToGive = energyContainer!!.energyPerTick
         val simulatedRemainder = energyHandler.insertEnergy(energyToGive, Action.SIMULATE)
         if (simulatedRemainder.smallerThan(energyToGive)) {
-            //We are able to fit at least some energy from our container into the item
-            val extractedEnergy = energyContainer!!.extract(energyToGive.subtract(simulatedRemainder), Action.EXECUTE, AutomationType.INTERNAL)
+            // We are able to fit at least some energy from our container into the item
+            val extractedEnergy =
+                energyContainer!!.extract(
+                    energyToGive.subtract(simulatedRemainder),
+                    Action.EXECUTE,
+                    AutomationType.INTERNAL,
+                )
             if (!extractedEnergy.isZero) {
-                //If we were able to actually extract it from our energy container, then insert it into the item
+                // If we were able to actually extract it from our energy container, then insert it into the item
                 MekanismUtils.logExpectedZero(energyHandler.insertEnergy(extractedEnergy, Action.EXECUTE))
                 return true
             }
@@ -100,40 +101,35 @@ class TileEntityGyro(pos: BlockPos?, state: BlockState?) : TileEntityMekanism(Ko
         return false
     }
 
-
     fun enable() {
         if (level !is ServerLevel) return
-        //println("ENABLED")
+        // println("ENABLED")
         enabled = true
-        val ship = KontraptionVSUtils.getShipObjectManagingPos((level as ServerLevel), worldPosition)
+        val ship =
+            KontraptionVSUtils.getShipObjectManagingPos((level as ServerLevel), worldPosition)
                 ?: KontraptionVSUtils.getShipManagingPos((level as ServerLevel), worldPosition)
                 ?: return
 
         KontraptionGyroControl.getOrCreate(ship).let {
             it.stopGyro(worldPosition)
             it.addGyro(
-                    worldPosition,
-                    0.0,
-                    this
-
-
+                worldPosition,
+                0.0,
+                this,
             )
         }
     }
 
-
     fun disable() {
-        //println("DISABLED")
+        // println("DISABLED")
         if (level !is ServerLevel) return
 
         enabled = false
 
         KontraptionGyroControl.getOrCreate(
-                KontraptionVSUtils.getShipObjectManagingPos((level as ServerLevel), worldPosition)
-                        ?: KontraptionVSUtils.getShipManagingPos((level as ServerLevel), worldPosition)
-                        ?: return
+            KontraptionVSUtils.getShipObjectManagingPos((level as ServerLevel), worldPosition)
+                ?: KontraptionVSUtils.getShipManagingPos((level as ServerLevel), worldPosition)
+                ?: return,
         ).stopGyro(worldPosition)
     }
-
-
 }

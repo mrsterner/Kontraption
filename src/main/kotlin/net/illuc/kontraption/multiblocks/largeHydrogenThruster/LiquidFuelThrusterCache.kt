@@ -2,6 +2,4 @@ package net.illuc.kontraption.multiblocks.largeHydrogenThruster
 
 import mekanism.common.lib.multiblock.MultiblockCache
 
-class LiquidFuelThrusterCache : MultiblockCache<LiquidFuelThrusterMultiblockData>() {
-
-}
+class LiquidFuelThrusterCache : MultiblockCache<LiquidFuelThrusterMultiblockData>()

@@ -10,12 +10,16 @@ import net.illuc.kontraption.multiblocks.railgun.RailgunMultiblockData
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
-
-open class TileEntityRailgunCasing(blockProvider: IBlockProvider?, pos: BlockPos?, state: BlockState?) : TileEntityMultiblock<RailgunMultiblockData?>(blockProvider, pos, state), IHasGasMode{
+open class TileEntityRailgunCasing(blockProvider: IBlockProvider?, pos: BlockPos?, state: BlockState?) :
+    TileEntityMultiblock<RailgunMultiblockData?>(
+        blockProvider,
+        pos,
+        state,
+    ),
+    IHasGasMode {
     constructor(pos: BlockPos?, state: BlockState?) : this(KontraptionBlocks.RAILGUN_CASING, pos, state)
 
     lateinit var prevMultiblock: RailgunMultiblockData
-
 
     override fun createMultiblock(): RailgunMultiblockData {
         return RailgunMultiblockData(this)
@@ -34,7 +38,6 @@ open class TileEntityRailgunCasing(blockProvider: IBlockProvider?, pos: BlockPos
     }
 
     override fun onUpdateServer() {
-
         super.onUpdateServer()
     }
 
@@ -45,8 +48,7 @@ open class TileEntityRailgunCasing(blockProvider: IBlockProvider?, pos: BlockPos
     override fun nextMode(tank: Int) {
         if (tank === 0) {
             val multiblock: RailgunMultiblockData? = multiblock
-            //multiblock.setDumpMode(multiblock.dumpMode.getNext())
+            // multiblock.setDumpMode(multiblock.dumpMode.getNext())
         }
-
     }
 }
