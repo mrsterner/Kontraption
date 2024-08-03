@@ -115,6 +115,10 @@ public class KontraptionBlockTypes {
             .createBlock(() -> KontraptionTileEntityTypes.RAILGUN_PORT, MekanismLang.HOLD_FOR_DESCRIPTION)
             .externalMultiblock()
             .build();
+    public static final BlockTypeTile<TileEntityConnector> CONNECTOR = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.CONNECTOR, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .with(new AttributeStateFacing(BlockStateProperties.FACING))
+            .build();
 
 
 }
