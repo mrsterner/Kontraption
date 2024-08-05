@@ -57,15 +57,18 @@ class TileEntityConnector(
     override fun onLoad() {
         super.onLoad()
         if (!level?.isClientSide!!) {
-            this.isConnected = false // unfortunly connections dont save on load
+            if (this.isConnected) {
+                this.isConnected = false
+                this.connect()
+            } // unfortunly connections dont save on load
         }
     }
 
-    fun rayTrace(distance: Double): BlockEntity? {
+    private fun rayTrace(distance: Double): BlockEntity? {
         val blockState = sLevel!!.getBlockState(blockPos)
         val fdirection = blockState.getValue(BlockStateProperties.FACING)
-        var startVec = Vec3.atCenterOf(blockPos).add(Vec3.atLowerCornerOf(fdirection.getNormal()).scale(0.7))
-        val directionVec = Vec3(fdirection.getStepX().toDouble(), fdirection.getStepY().toDouble(), fdirection.getStepZ().toDouble())
+        var startVec = Vec3.atCenterOf(blockPos).add(Vec3.atLowerCornerOf(fdirection.normal).scale(0.7))
+        val directionVec = Vec3(fdirection.stepX.toDouble(), fdirection.stepY.toDouble(), fdirection.stepZ.toDouble())
         var endVec = startVec.add(directionVec.scale(distance))
         if (ship?.id != null) {
             val tempstartVec = ship!!.transform.shipToWorld.transformPosition(fV3V3d(startVec))
@@ -84,16 +87,9 @@ class TileEntityConnector(
                 null,
             )
         val bhitresul = sLevel!!.clip(context)
-        if (bhitresul.getType() === HitResult.Type.BLOCK) {
+        if (bhitresul.type === HitResult.Type.BLOCK) {
             val hitPos: BlockPos = bhitresul.blockPos
             val btype = sLevel!!.getBlockEntity(hitPos) // 50/50 its my serverLevel fault
-            val blockname =
-                btype
-                    ?.blockState
-                    ?.block
-                    ?.name
-                    .toString()
-            // Mekanism.logger.info("Hit block at: $hitPos and its $blockname")
             if (btype != null) {
                 if (btype::class == this::class) {
                     return btype
@@ -119,27 +115,12 @@ class TileEntityConnector(
         underCC = tag.getBoolean("undercc")
     }
 
-    fun getConID(): Int {
-        return conid // dunno if ima use it? maybe to make sure i wont make double constrain
-    }
-
-    fun getIsConnected(): Boolean = isConnected
-
-    fun setConID(value: Int) {
-        conid = value // same as above
-        setChanged()
-    }
-
     fun check(): Pair<BlockEntity?, ServerShip?>? {
         val world = this.level ?: return null // kinda needed lol
-        val blockPosz: Vector3d
         if (world.isClientSide) {
             return null // mf crash
         }
-        val bp2 = rayTrace(5.1)
-        if (bp2 == null) {
-            return null
-        }
+        val bp2 = rayTrace(2.5) ?: return null
         val tileEntity2c: TileEntityConnector? = bp2 as? TileEntityConnector
         val ship2 = tileEntity2c?.ship
         return Pair(tileEntity2c, ship2)
@@ -183,11 +164,12 @@ class TileEntityConnector(
             // Mekanism.logger.info("Didnt find SHIP2 but found TE2, so static connection")
         }
         val shipid1 = ship?.id
-        if (ship2?.id != null) {
-            shipid2 = ship2?.id
-        } else {
-            shipid2 = tileEntity2c?.getDimID()
-        }
+        shipid2 =
+            if (ship2?.id != null) {
+                ship2.id
+            } else {
+                tileEntity2c?.getDimID()
+            }
         if (shipid2 == null || shipid1 == null) {
             // Mekanism.logger.info("SHIPID NULLED AND CONNECTOR NULLED  ID1:$shipid1 ID2:$shipid2")
             return
