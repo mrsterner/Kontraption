@@ -2,18 +2,14 @@ package net.illuc.kontraption.util;
 
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.phys.BlockHitResult;
 import org.joml.Vector3d;
 import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.assembly.ShipAssemblyKt;
-import org.valkyrienskies.mod.common.assembly.ShipAssemblyKt.*;
-
 
 
 // BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE BRAIN DAMAGE
@@ -48,6 +44,10 @@ public class KontraptionVSUtils {
 
     public static void createNewShipWithBlocks(BlockPos pos, DenseBlockPosSet set, ServerLevel level){
         ShipAssemblyKt.createNewShipWithBlocks(pos, set, level);
+    }
+    public static String dimensionID(ServerLevel level){
+        return  VSGameUtilsKt.getDimensionId(level);
+
     }
 
 }

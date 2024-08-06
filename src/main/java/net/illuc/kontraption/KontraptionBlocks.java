@@ -40,6 +40,7 @@ public class KontraptionBlocks {
 
     public static final BlockRegistryObject<BlockCannon, BlockItem> CANNON = BLOCKS.register("cannon", () -> new BlockCannon(KontraptionBlockTypes.CANNON));
     public static final BlockRegistryObject<BlockServo, BlockItem> SERVO = BLOCKS.register("servo", () -> new BlockServo(KontraptionBlockTypes.SERVO));
+    public static final BlockRegistryObject<BlockConnector, BlockItem> CONNECTOR = BLOCKS.register("connector", () -> new BlockConnector(KontraptionBlockTypes.CONNECTOR));
 
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_COIL = BLOCKS.register("railgun_coil", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_COIL, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_CASING = BLOCKS.register("railgun_casing", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_CASING, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
