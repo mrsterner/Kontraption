@@ -72,10 +72,8 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.VS_DISCORD_WEBHOOK }}
       with:
         args: ./build/libs/kontraption-*
-        
-    - name: Upload Release Assets
-      uses: alexellis/upload-assets@0.4.1
-      env:
-          GITHUB_TOKEN: ${{ github.token }}
+    - name: Upload Build to Github
+      uses: zattoo/publish@v1
       with:
-          asset_paths: '["./build/libs/*"]'
+          github_token: ${{github.token}}
+          sources: './build/libs/*'
