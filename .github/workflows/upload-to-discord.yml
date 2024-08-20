@@ -72,33 +72,3 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.VS_DISCORD_WEBHOOK }}
       with:
         args: ./build/libs/kontraption-*
-        
-    - name: Create Draft Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.SHORT_COMMIT_HASH }}
-        release_name: ${{ env.SHORT_COMMIT_HASH }}
-        draft: true
-        prerelease: false
-    - name: Get file
-      uses: tj-actions/glob@v22
-      id: glob
-      with:
-        files: "**/kontraption-*"
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.glob.outputs.paths }}
-        asset_name: my-artifact.zip
-        asset_content_type: application/java-archive
-
-    - uses: eregon/publish-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        release_id: ${{ steps.create_release.outputs.id }}
