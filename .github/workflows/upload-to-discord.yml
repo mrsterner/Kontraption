@@ -87,9 +87,7 @@ jobs:
       uses: tj-actions/glob@v22
       id: glob
       with:
-        files: |
-            **/build/libs/kontraption-*
-
+        files: "**/kontraption-*"
     - uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
