@@ -74,10 +74,8 @@ jobs:
         args: ./build/libs/kontraption-*
         
     - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v2
+      uses: alexellis/upload-assets@0.4.0
+      env:
+          GITHUB_TOKEN: ${{ github.token }}
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./build/libs/kontraption-*
-        tag: ${{ github.ref }}
-        overwrite: true
-        body: "${{ env.WEEKLY_COMMITS }}"
+          asset_paths: '["./build/libs/kontraption-*"]'
