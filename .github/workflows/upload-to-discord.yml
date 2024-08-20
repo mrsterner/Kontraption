@@ -73,8 +73,8 @@ jobs:
       with:
         args: ./build/libs/kontraption-*
         
-    - name: Upload binaries to release
-      uses: alexellis/upload-assets@0.4.0
+    - name: Upload Release Assets
+      uses: alexellis/upload-assets@0.4.1
       env:
           GITHUB_TOKEN: ${{ github.token }}
       with:
