@@ -72,30 +72,12 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.VS_DISCORD_WEBHOOK }}
       with:
         args: ./build/libs/kontraption-*
-    
-    - name: Create Draft Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        tag_name: "Nightly ${{ env.SHORT_COMMIT_HASH }} - ${{ github.ref_name }}"
-        release_name: "${{ env.SHORT_COMMIT_HASH }} - ${{ github.ref_name }}"
-        draft: true
-        prerelease: false
-
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/kontraption-*
-        asset_name: "kontraption-${{ env.SHORT_COMMIT_HASH }}.jar"
-        asset_content_type: application/java-archive
-
-    - uses: eregon/publish-release@v1.0.6
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        release_id: ${{ steps.create_release.outputs.id }}
-
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./build/libs/kontraption-*
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "${{ env.WEEKLY_COMMITS }}"
