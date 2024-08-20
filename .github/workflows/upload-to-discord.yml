@@ -42,6 +42,12 @@ jobs:
             New commits:
             ${{ env.WEEKLY_COMMITS }}
           embed-color: 0xFF6600
+
+    - name: Get Short Commit Hash
+      run: |
+        echo 'SHORT_COMMIT_HASH<<EOF' >> $GITHUB_ENV
+        git rev-parse --short HEAD >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
     - name: Upload Build
       uses: sinshutu/upload-to-discord@v2.0.0
       env:
@@ -66,15 +72,15 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.VS_DISCORD_WEBHOOK }}
       with:
         args: ./build/libs/kontraption-*
-
+    
     - name: Create Draft Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: Nightly $(git rev-parse --short HEAD)
-        release_name: $(git rev-parse --short HEAD)
+        tag_name: "Nightly ${{ env.SHORT_COMMIT_HASH }}"
+        release_name: "${{ env.SHORT_COMMIT_HASH }}"
         draft: true
         prerelease: false
 
@@ -85,7 +91,7 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./build/libs/kontraption-*
 
-    - uses: eregon/publish-release@v1
+    - uses: eregon/publish-release@v1.0.6
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
