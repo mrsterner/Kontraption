@@ -88,7 +88,7 @@ jobs:
       id: glob
       with:
         files: |
-            /build/libs/*
+            **/build/libs/kontraption-*
 
     - uses: actions/upload-release-asset@v1.0.1
       env:
