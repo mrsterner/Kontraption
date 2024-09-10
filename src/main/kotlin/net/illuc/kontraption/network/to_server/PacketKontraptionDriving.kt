@@ -15,12 +15,18 @@ import org.valkyrienskies.core.api.ships.setAttachment
 import org.valkyrienskies.core.util.readVec3d
 import org.valkyrienskies.core.util.writeVec3d
 
-class PacketKontraptionDriving(val impulse: Vector3dc, val rotation: Vector3dc) : IMekanismPacket {
+class PacketKontraptionDriving(
+    val impulse: Vector3dc,
+    val rotation: Vector3dc,
+    val openConf: Boolean,
+    val bface: Byte,
+) : IMekanismPacket {
     private val key = 0
     private val add = false
 
     override fun handle(context: NetworkEvent.Context) {
         val player: Player? = context.sender
+        var b: Byte = 0
         if (player != null) {
             val seat = player.vehicle as? KontraptionShipMountingEntity ?: return
             // fucking please dont do stuff if something is wrong
@@ -39,15 +45,19 @@ class PacketKontraptionDriving(val impulse: Vector3dc, val rotation: Vector3dc) 
             attachment.pitch = rotation.x()
             attachment.yaw = rotation.y()
             attachment.roll = rotation.z()
+            attachment.openConfig = openConf
+            attachment.bface = bface
         }
     }
 
     override fun encode(buffer: FriendlyByteBuf) {
         buffer.writeVec3d(impulse)
         buffer.writeVec3d(rotation)
+        buffer.writeBoolean(openConf)
+        buffer.writeByte(bface.toInt())
     }
 
     companion object {
-        fun decode(buffer: FriendlyByteBuf) = PacketKontraptionDriving(buffer.readVec3d(), buffer.readVec3d())
+        fun decode(buffer: FriendlyByteBuf) = PacketKontraptionDriving(buffer.readVec3d(), buffer.readVec3d(), buffer.readBoolean(), buffer.readByte())
     }
 }

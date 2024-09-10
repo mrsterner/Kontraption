@@ -2,6 +2,7 @@ package net.illuc.kontraption.blockEntities
 
 import com.mojang.logging.LogUtils
 import dan200.computercraft.shared.Capabilities
+import io.netty.buffer.Unpooled
 import mekanism.common.integration.computer.ComputerException
 import mekanism.common.integration.computer.IComputerTile
 import mekanism.common.tile.base.TileEntityMekanism
@@ -9,33 +10,48 @@ import net.illuc.kontraption.Kontraption
 import net.illuc.kontraption.KontraptionBlocks
 import net.illuc.kontraption.controls.KontraptionSeatedControllingPlayer
 import net.illuc.kontraption.entity.KontraptionShipMountingEntity
+import net.illuc.kontraption.events.KeyBindEvent
+import net.illuc.kontraption.gui.ShipTerminalMenu
 import net.illuc.kontraption.peripherals.ShipControlInterfacePeripheral
 import net.illuc.kontraption.ship.KontraptionGyroControl
+import net.illuc.kontraption.ship.KontraptionKeyBlockControl
 import net.illuc.kontraption.ship.KontraptionThrusterControl
+import net.illuc.kontraption.util.ByteUtils
 import net.illuc.kontraption.util.KontraptionVSUtils.getShipObjectManagingPos
+import net.illuc.kontraption.util.toBlockPos
 import net.illuc.kontraption.util.toDoubles
 import net.illuc.kontraption.util.toJOMLD
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.level.block.HorizontalDirectionalBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
+import net.minecraftforge.fml.ModList
+import net.minecraftforge.network.NetworkHooks
 import org.joml.Quaterniond
 import org.joml.Vector3d
 import org.joml.Vector3dc
 import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.saveAttachment
-import java.util.*
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
-    TileEntityMekanism(
+class TileEntityShipControlInterface(
+    pos: BlockPos?,
+    state: BlockState?,
+) : TileEntityMekanism(
         KontraptionBlocks.SHIP_CONTROL_INTERFACE,
         pos,
         state,
@@ -45,21 +61,28 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
     private var seatedControllingPlayer: KontraptionSeatedControllingPlayer? = null
     private val seats = mutableListOf<KontraptionShipMountingEntity>()
     private val logger = LogUtils.getLogger()
-    private val peripheral = ShipControlInterfacePeripheral(this)
-    private val peripheralCapability = LazyOptional.of { peripheral }
 
     private var rotTarget = Quaterniond()
     private var velTarget = Vector3d()
+
+    val keyStates = BooleanArray(6) { false }
+
+    lateinit var entity: KontraptionShipMountingEntity
 
     override fun <T> getCapability(
         capability: Capability<T>,
         side: Direction?,
     ): LazyOptional<T> {
-        return if (capability == Capabilities.CAPABILITY_PERIPHERAL as Capability<T>) {
-            peripheralCapability as LazyOptional<T>
-        } else {
-            super.getCapability(capability, side)
+        if (ModList.get().isLoaded("computercraft")) {
+            val peripheral = ShipControlInterfacePeripheral(this)
+            val peripheralCapability = LazyOptional.of { peripheral }
+            return if (capability == Capabilities.CAPABILITY_PERIPHERAL as Capability<T>) {
+                peripheralCapability as LazyOptional<T>
+            } else {
+                super.getCapability(capability, side)
+            }
         }
+        return super.getCapability(capability, side)
     }
 
     fun spawnSeat(
@@ -75,14 +98,18 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         if (!newState.isAir) {
             height = newShape.max(Direction.Axis.Y)
         }
-        val entity =
+        entity =
             Kontraption.KONTRAPTION_SHIP_MOUNTING_ENTITY_TYPE.create(level)!!.apply {
                 val seatEntityPos: Vector3dc = Vector3d(newPos.x + .5, (newPos.y - .5) + height, newPos.z + .5)
                 moveTo(seatEntityPos.x(), seatEntityPos.y(), seatEntityPos.z())
 
                 lookAt(
                     EntityAnchorArgument.Anchor.EYES,
-                    state.getValue(HORIZONTAL_FACING).normal.toDoubles().add(position()),
+                    state
+                        .getValue(HORIZONTAL_FACING)
+                        .normal
+                        .toDoubles()
+                        .add(position()),
                 )
 
                 isController = true
@@ -93,6 +120,8 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         return entity
     }
 
+    fun getKeystones(): List<KontraptionKeyBlockControl.KeyStone> = KontraptionKeyBlockControl.getOrCreate(this.ship!!).getKeystones()
+
     fun tick() {
         val ship = this.ship ?: return
 
@@ -100,6 +129,52 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         if (seats.size != 0) {
             if (seats[0].passengers.size != 0) {
                 velTarget = Vector3d(seatedControllingPlayer!!.forwardImpulse, seatedControllingPlayer!!.upImpulse, seatedControllingPlayer!!.leftImpulse)
+                if (seatedControllingPlayer!!.openConfig == true) {
+                    var player = entity.controllingPassenger as ServerPlayer
+                    val posKeystones = getKeystones().map { it.position.toBlockPos() }
+                    val bindKeyStones =
+                        posKeystones.map { blockPos ->
+                            (level!!.getBlockEntity(blockPos) as TileEntityKey).getsetKeybind(false)
+                        }
+                    val menuProvider =
+                        object : MenuProvider {
+                            override fun getDisplayName(): Component = Component.translatable("container." + Kontraption.MODID + ".TerminalGUI")
+
+                            override fun createMenu(
+                                windowId: Int,
+                                playerInventory: Inventory,
+                                player: Player,
+                            ): AbstractContainerMenu {
+                                val buf =
+                                    FriendlyByteBuf(Unpooled.buffer()).apply {
+                                        writeCollection(posKeystones, FriendlyByteBuf::writeBlockPos)
+                                        writeCollection(bindKeyStones, FriendlyByteBuf::writeInt)
+                                    }
+                                return ShipTerminalMenu(windowId, playerInventory, buf)
+                            }
+                        }
+                    NetworkHooks.openScreen(player, menuProvider) { buf ->
+                        buf.writeCollection(posKeystones, FriendlyByteBuf::writeBlockPos)
+                        buf.writeCollection(bindKeyStones, FriendlyByteBuf::writeInt)
+                    }
+                }
+                // pART 3
+                val keyBindings =
+                    arrayOf(
+                        ByteUtils.getBool(seatedControllingPlayer!!.bface, 0),
+                        ByteUtils.getBool(seatedControllingPlayer!!.bface, 1),
+                        ByteUtils.getBool(seatedControllingPlayer!!.bface, 2),
+                        ByteUtils.getBool(seatedControllingPlayer!!.bface, 3),
+                        ByteUtils.getBool(seatedControllingPlayer!!.bface, 4),
+                        ByteUtils.getBool(seatedControllingPlayer!!.bface, 5),
+                    )
+                for (i in keyBindings.indices) {
+                    val isPressed = keyBindings[i] == true
+                    if (isPressed != keyStates[i]) {
+                        MinecraftForge.EVENT_BUS.post(KeyBindEvent(i + 1, isPressed, entity.controllingPassenger as ServerPlayer, ship))
+                        keyStates[i] = isPressed
+                    }
+                }
             }
         }
 
@@ -113,7 +188,8 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         )
 
         thrusters.thrusterControlAll(
-            this.direction.opposite.normal.toJOMLD(),
+            this.direction.opposite.normal
+                .toJOMLD(),
             // seatedControllingPlayer?.forwardImpulse!!.toDouble(),
             velTarget.x,
         )
@@ -131,13 +207,15 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         )
 
         thrusters.thrusterControlAll(
-            this.direction.counterClockWise.normal.toJOMLD(),
+            this.direction.counterClockWise.normal
+                .toJOMLD(),
             // seatedControllingPlayer?.leftImpulse!!.toDouble()
             velTarget.z,
         )
 
         thrusters.thrusterControlAll(
-            this.direction.clockWise.normal.toJOMLD(),
+            this.direction.clockWise.normal
+                .toJOMLD(),
             // -seatedControllingPlayer?.leftImpulse!!.toDouble()
             -velTarget.z,
         )
@@ -145,7 +223,11 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         if (seatedControllingPlayer!!.pitch.absoluteValue + seatedControllingPlayer!!.yaw.absoluteValue + seatedControllingPlayer!!.roll.absoluteValue != 0.0) {
             val sensitivity = 0.1
             val tmp = Quaterniond()
-            tmp.fromAxisAngleRad(this.direction.clockWise.normal.toJOMLD(), seatedControllingPlayer?.pitch!!.toDouble() * sensitivity)
+            tmp.fromAxisAngleRad(
+                this.direction.clockWise.normal
+                    .toJOMLD(),
+                seatedControllingPlayer?.pitch!!.toDouble() * sensitivity,
+            )
             rotTarget.mul(tmp)
             tmp.fromAxisAngleRad(this.direction.normal.toJOMLD(), seatedControllingPlayer?.roll!!.toDouble() * sensitivity)
             rotTarget.mul(tmp)
@@ -208,26 +290,22 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         return startRiding(player, force, blockPos, blockState, level as ServerLevel)
     }
 
-    public fun getRotation(): Map<String, Double> {
-        return(
-            mapOf(
-                Pair("x", rotTarget.x()),
-                Pair("y", rotTarget.y()),
-                Pair("z", rotTarget.z()),
-                Pair("w", rotTarget.w()),
-            )
+    public fun getRotation(): Map<String, Double> = (
+        mapOf(
+            Pair("x", rotTarget.x()),
+            Pair("y", rotTarget.y()),
+            Pair("z", rotTarget.z()),
+            Pair("w", rotTarget.w()),
         )
-    }
+    )
 
-    public fun getMovement(): Map<String, Double> {
-        return(
-            mapOf(
-                Pair("x", velTarget.x()),
-                Pair("y", velTarget.y()),
-                Pair("z", velTarget.z()),
-            )
+    public fun getMovement(): Map<String, Double> = (
+        mapOf(
+            Pair("x", velTarget.x()),
+            Pair("y", velTarget.y()),
+            Pair("z", velTarget.z()),
         )
-    }
+    )
 
     public fun getPosition(): Map<String, Double> {
         val a = ship!!.transform.positionInWorld
@@ -245,9 +323,7 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         return(ship!!.inertiaData.mass)
     }
 
-    public fun getSlug(): String {
-        return(ship!!.slug.toString())
-    }
+    public fun getSlug(): String = (ship!!.slug.toString())
 
     public fun getVelocity(): Map<String, Double> {
         val a = ship!!.velocity
@@ -289,7 +365,11 @@ class TileEntityShipControlInterface(pos: BlockPos?, state: BlockState?) :
         z: Double,
     ) {
         val tmp = Quaterniond()
-        tmp.fromAxisAngleRad(this.direction.clockWise.normal.toJOMLD(), z * 0.1)
+        tmp.fromAxisAngleRad(
+            this.direction.clockWise.normal
+                .toJOMLD(),
+            z * 0.1,
+        )
         rotTarget.mul(tmp)
         tmp.fromAxisAngleRad(this.direction.normal.toJOMLD(), x * 0.1)
         rotTarget.mul(tmp)

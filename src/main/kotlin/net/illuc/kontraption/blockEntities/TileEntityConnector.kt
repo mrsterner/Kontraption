@@ -174,21 +174,20 @@ class TileEntityConnector(
             // Mekanism.logger.info("SHIPID NULLED AND CONNECTOR NULLED  ID1:$shipid1 ID2:$shipid2")
             return
         }
-        println(shipid2)
         // Mekanism.logger.info("Attempting connection")
         if (!this.isConnected && tileEntity2c?.isConnected == false) {
             // Mekanism.logger.info("both are not connected")
             val sypos1 = vectorBlocpos
             val sypos2 = tileEntity2.vectorBlocpos
-            println("SX1: ${fVdVdc(sypos1).x()} SY1: ${fVdVdc(sypos1).y()} SZ1: ${fVdVdc(sypos1).z()}")
-            println("SX2: ${fVdVdc(sypos2).x()} SY2: ${fVdVdc(sypos2).y()} SZ2: ${fVdVdc(sypos2).z()}")
+            // println("SX1: ${sypos1.x()} SY1: ${sypos1.y()} SZ1: ${sypos1.z()}")
+            // println("SX2: ${sypos2.x()} SY2: ${sypos2.y()} SZ2: ${sypos2.z()}")
             val constraint =
                 VSAttachmentConstraint(
                     shipid1,
                     shipid2,
                     compliance = 1e-10,
-                    localPos0 = fVdVdc(sypos1),
-                    localPos1 = fVdVdc(sypos2),
+                    localPos0 = sypos1,
+                    localPos1 = sypos2,
                     maxForce = 1e10,
                     fixedDistance = 0.5,
                 )

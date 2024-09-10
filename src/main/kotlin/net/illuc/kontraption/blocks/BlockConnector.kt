@@ -11,7 +11,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 
-class BlockConnector(type: BlockTypeTile<TileEntityConnector?>?) : BlockTile<TileEntityConnector?, BlockTypeTile<TileEntityConnector?>?>(type, BlockBehaviour.Properties.of()) {
+class BlockConnector(
+    type: BlockTypeTile<TileEntityConnector?>?,
+) : BlockTile<TileEntityConnector?, BlockTypeTile<TileEntityConnector?>?>(type, BlockBehaviour.Properties.of()) {
     override fun onPlace(
         state: BlockState,
         world: Level,

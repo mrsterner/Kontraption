@@ -15,6 +15,8 @@
   "block.kontraption.liquid_fuel_thruster_exhaust": "Liquid Fuel Thruster Exhaust",
   "block.kontraption.oil_drill_casing": "Oil Drill Casing",
   "block.kontraption.oil_drill_port": "Oil Drill Port",
+  "block.kontraption.connector": "Connector",
+  "block.kontraption.key": "Redstone Interface",
 
   "toolgun.kontraption.mode_change": "Toolgun mode changed to: %1$s",
   "toolgun.kontraption.assemble": "Assemble",
@@ -38,5 +40,8 @@
   "chat.kontraption.titleborder": "===========[Kontraption]===========",
   "chat.kontraption.border":      "=================================",
 
-  "itemGroup.kontraption": "Kontraption"
+  "itemGroup.kontraption": "Kontraption",
+
+  "_": "----------GUI-------------",
+  "container.kontraption.TerminalGUI": "Ship Terminal Configuration"
 }

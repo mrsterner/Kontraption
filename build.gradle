@@ -11,7 +11,7 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.parchmentmc:librarian:1.+'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0'
         classpath "org.jlleitschuh.gradle:ktlint-gradle:12.1.1"
 
         // OPTIONAL Gradle plugin for Kotlin Serialization
@@ -22,13 +22,14 @@ buildscript {
 
 plugins {
     // Adds the Kotlin Gradle plugin
-    //id "org.jetbrains.kotlin.jvm" version "1.9.10" apply false
+    id "org.jetbrains.kotlin.jvm" version "1.9.22"
     // OPTIONAL Kotlin Serialization plugin
-    //id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.21'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22'
 
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 apply plugin: "org.jlleitschuh.gradle.ktlint"
@@ -80,7 +81,7 @@ java {
 
 minecraft {
 
-    mappings channel: mapping_channel, version: mapping_version
+    mappings channel: 'parchment', version: '2023.09.03-1.20.1'
 
     copyIdeResources = true
     runs {
@@ -160,7 +161,7 @@ repositories {
 
 
 
-        maven {
+    maven {
         name = "ParchmentMC"
         url = "https://maven.parchmentmc.org"
     }

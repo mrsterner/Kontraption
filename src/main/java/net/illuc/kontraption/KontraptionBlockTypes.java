@@ -117,6 +117,12 @@ public class KontraptionBlockTypes {
             .build();
     public static final BlockTypeTile<TileEntityConnector> CONNECTOR = BlockTypeTile.BlockTileBuilder
             .createBlock(() -> KontraptionTileEntityTypes.CONNECTOR, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .with(AttributeCustomSelectionBox.JSON)
+            .withCustomShape(KontraptionBlockShapes.CONNECTOR)
+            .with(new AttributeStateFacing(BlockStateProperties.FACING))
+            .build();
+    public static final BlockTypeTile<TileEntityKey> KEY = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.KEY, MekanismLang.HOLD_FOR_DESCRIPTION)
             .with(new AttributeStateFacing(BlockStateProperties.FACING))
             .build();
 

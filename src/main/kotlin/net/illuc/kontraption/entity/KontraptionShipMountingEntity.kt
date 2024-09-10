@@ -3,6 +3,7 @@ package net.illuc.kontraption.entity
 import net.illuc.kontraption.Kontraption
 import net.illuc.kontraption.config.KontraptionKeyBindings
 import net.illuc.kontraption.network.to_server.PacketKontraptionDriving
+import net.illuc.kontraption.util.ByteUtils
 import net.illuc.kontraption.util.KontraptionVSUtils.getShipObjectManagingPos
 import net.minecraft.client.Minecraft
 import net.minecraft.nbt.CompoundTag
@@ -19,7 +20,10 @@ import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.ships.setAttachment
 import org.valkyrienskies.mod.api.SeatedControllingPlayer
 
-open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountingEntity>, level: Level) : Entity(type, level) {
+open class KontraptionShipMountingEntity(
+    type: EntityType<KontraptionShipMountingEntity>,
+    level: Level,
+) : Entity(type, level) {
     // Decides if this entity controlls the ship it is in.
     // Only needs to be set serverside
     var isController = false
@@ -44,10 +48,10 @@ open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountin
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag?) {
+    override fun readAdditionalSaveData(compound: CompoundTag) {
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag?) {
+    override fun addAdditionalSaveData(compound: CompoundTag) {
     }
 
     override fun defineSynchedData() {
@@ -77,6 +81,14 @@ open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountin
         val yawDown = KontraptionKeyBindings.yawDown.get().isDown
         val rollUp = KontraptionKeyBindings.rollUp.get().isDown
         val rollDown = KontraptionKeyBindings.rollDown.get().isDown
+        val openConfig = KontraptionKeyBindings.openConfig.get().isDown
+        val opr1 = KontraptionKeyBindings.redInter1.get().isDown
+        val opr2 = KontraptionKeyBindings.redInter2.get().isDown
+        val opr3 = KontraptionKeyBindings.redInter3.get().isDown
+        val opr4 = KontraptionKeyBindings.redInter4.get().isDown
+        val opr5 = KontraptionKeyBindings.redInter5.get().isDown
+        val opr6 = KontraptionKeyBindings.redInter6.get().isDown
+        val combined = ByteUtils.setBoolArg(opr1, opr2, opr3, opr4, opr5, opr6)
 
         val impulse = Vector3d()
         impulse.z =
@@ -140,17 +152,15 @@ open class KontraptionShipMountingEntity(type: EntityType<KontraptionShipMountin
             PacketKontraptionDriving(
                 Vector3d(impulse.x(), impulse.y(), impulse.z()),
                 Vector3d(rotation.x(), rotation.y(), rotation.z()),
+                openConfig,
+                combined,
             ),
         )
 
         // KontraptionPacketPlayerDriving(impulse, rotation).sendToServer()
     }
 
-    override fun getControllingPassenger(): LivingEntity? {
-        return if (isController) this.passengers.getOrNull(0) as LivingEntity else null
-    }
+    override fun getControllingPassenger(): LivingEntity? = if (isController) this.passengers.getOrNull(0) as LivingEntity else null
 
-    override fun getAddEntityPacket(): Packet<ClientGamePacketListener> {
-        return ClientboundAddEntityPacket(this)
-    }
+    override fun getAddEntityPacket(): Packet<ClientGamePacketListener> = ClientboundAddEntityPacket(this)
 }

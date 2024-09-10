@@ -20,6 +20,9 @@ import net.illuc.kontraption.command.CommandKontraption
 import net.illuc.kontraption.config.KontraptionConfigs
 import net.illuc.kontraption.config.KontraptionKeyBindings
 import net.illuc.kontraption.entity.KontraptionShipMountingEntity
+import net.illuc.kontraption.events.EventListener
+import net.illuc.kontraption.gui.ShipTerminalMenu
+import net.illuc.kontraption.gui.ShipTerminalScreen
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterMultiblockData
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterValidator
 import net.illuc.kontraption.multiblocks.railgun.RailgunMultiblockData
@@ -27,19 +30,23 @@ import net.illuc.kontraption.multiblocks.railgun.RailgunValidator
 import net.illuc.kontraption.network.KontraptionPacketHandler
 import net.illuc.kontraption.util.BlockDamageManager
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.particle.SpriteSet
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.EntityRenderersEvent
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.extensions.IForgeMenuType
 import net.minecraftforge.event.RegisterCommandsEvent
 import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -101,12 +108,15 @@ class Kontraption : IModModule {
         KontraptionItems.ITEMS.register(modEventBus)
         KontraptionBlocks.BLOCKS.register(modEventBus)
         ENTITIES.register(modEventBus)
+        EventListener.register()
         KontraptionParticleTypes.PARTICLE_TYPES.register(modEventBus)
         // GeneratorsFluids.FLUIDS.register(modEventBus)
         // GeneratorsSounds.SOUND_EVENTS.register(modEventBus)
         KontraptionContainerTypes.CONTAINER_TYPES.register(modEventBus)
         KontraptionTileEntityTypes.TILE_ENTITY_TYPES.register(modEventBus)
         KontraptionSounds.SOUND_EVENTS.register(modEventBus)
+        // note for ottery: in future move to seperate file
+        MENU_TYPES.register(modEventBus)
         // GeneratorsGases.GASES.register(modEventBus)
         // GeneratorsModules.MODULES.register(modEventBus)
         // Set our version number to match the mods.toml file, which matches the one in our build.gradle
@@ -115,10 +125,11 @@ class Kontraption : IModModule {
 
         KONTRAPTION_SHIP_MOUNTING_ENTITY_REGISTRY =
             ENTITIES.register("kontraption_ship_mounting_entity") {
-                EntityType.Builder.of(
-                    ::KontraptionShipMountingEntity,
-                    MobCategory.MISC,
-                ).sized(.3f, .3f)
+                EntityType.Builder
+                    .of(
+                        ::KontraptionShipMountingEntity,
+                        MobCategory.MISC,
+                    ).sized(.3f, .3f)
                     .build(ResourceLocation(Kontraption.MODID, "kontraption_ship_mounting_entity").toString())
             }
 
@@ -161,13 +172,9 @@ class Kontraption : IModModule {
         // MekanismIMC.addMekaSuitPantsModules(GeneratorsModules.GEOTHERMAL_GENERATOR_UNIT)
     }
 
-    override fun getVersion(): Version {
-        return versionNumber
-    }
+    override fun getVersion(): Version = versionNumber
 
-    override fun getName(): String {
-        return "Kontraption"
-    }
+    override fun getName(): String = "Kontraption"
 
     override fun resetClient() {
         // TurbineMultiblockData.clientRotationMap.clear()
@@ -217,6 +224,13 @@ class Kontraption : IModModule {
         const val MODID = "kontraption"
         var instance: Kontraption? = null
 
+        // Im BLIND
+        val MENU_TYPES: DeferredRegister<MenuType<*>> = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID)
+        val TERMINALMENU: RegistryObject<MenuType<ShipTerminalMenu>> =
+            MENU_TYPES.register("terminalconfig") {
+                IForgeMenuType.create { windowId: Int, inv: Inventory, buf: FriendlyByteBuf? -> ShipTerminalMenu(windowId, inv, buf) }
+            }
+
         // val turbineManager: MultiblockManager<TurbineMultiblockData> = MultiblockManager<TurbineMultiblockData>("industrialTurbine", Supplier<MultiblockCache<TurbineMultiblockData>> { TurbineCache() }, Supplier<IStructureValidator<TurbineMultiblockData>> { TurbineValidator() })
         // val fissionReactorManager: MultiblockManager<FissionReactorMultiblockData> = MultiblockManager<FissionReactorMultiblockData>("fissionReactor", Supplier<MultiblockCache<FissionReactorMultiblockData>> { FissionReactorCache() }, Supplier<IStructureValidator<FissionReactorMultiblockData>> { FissionReactorValidator() })
         // val fusionReactorManager: MultiblockManager<FusionReactorMultiblockData> = MultiblockManager<FusionReactorMultiblockData>("fusionReactor", Supplier<MultiblockCache<FusionReactorMultiblockData>> { FusionReactorCache() }, Supplier<IStructureValidator<FusionReactorMultiblockData>> { FusionReactorValidator() })
@@ -231,13 +245,9 @@ class Kontraption : IModModule {
 
         val blockDamageManager: BlockDamageManager = BlockDamageManager()
 
-        fun packetHandler(): KontraptionPacketHandler {
-            return instance!!.packetHandler
-        }
+        fun packetHandler(): KontraptionPacketHandler = instance!!.packetHandler
 
-        fun rl(path: String?): ResourceLocation {
-            return ResourceLocation(MODID, path)
-        }
+        fun rl(path: String?): ResourceLocation = ResourceLocation(MODID, path)
     }
 
     @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
@@ -254,6 +264,9 @@ class Kontraption : IModModule {
         @SubscribeEvent
         fun init(event: FMLClientSetupEvent?) {
             MinecraftForge.EVENT_BUS.register(KontraptionClientTickHandler())
+            event!!.enqueueWork {
+                MenuScreens.register(TERMINALMENU.get(), ::ShipTerminalScreen)
+            }
         }
 
         /*@SubscribeEvent
@@ -277,8 +290,9 @@ class Kontraption : IModModule {
         }
     }
 
-    fun createCreativeTab(): CreativeModeTab {
-        return CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
+    fun createCreativeTab(): CreativeModeTab =
+        CreativeModeTab
+            .builder(CreativeModeTab.Row.TOP, 0)
             .title(Component.translatable("itemGroup.kontraption"))
             .icon { KontraptionBlocks.ION_THRUSTER.asItem().defaultInstance }
             .displayItems { _, output ->
@@ -293,9 +307,9 @@ class Kontraption : IModModule {
                 output.accept(KontraptionBlocks.SHIP_CONTROL_INTERFACE)
                 output.accept(KontraptionBlocks.CANNON)
                 output.accept(KontraptionBlocks.GYRO)
+                output.accept(KontraptionBlocks.CONNECTOR)
+                output.accept(KontraptionBlocks.KEY)
                 // output.accept(KontraptionBlocks.SERVO)
                 // output.accept(KontraptionBlocks.WHEEL)
-            }
-            .build()
-    }
+            }.build()
 }

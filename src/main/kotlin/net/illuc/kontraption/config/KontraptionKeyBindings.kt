@@ -18,6 +18,15 @@ object KontraptionKeyBindings {
     val yawDown = register("key.kontraption.yaw_down", GLFW.GLFW_KEY_LEFT, "category.kontraption.ship_controls")
     val rollUp = register("key.kontraption.roll_up", GLFW.GLFW_KEY_PAGE_UP, "category.kontraption.ship_controls")
     val rollDown = register("key.kontraption.roll_down", GLFW.GLFW_KEY_PAGE_DOWN, "category.kontraption.ship_controls")
+    val openConfig = register("key.kontraption.interfaceopen", GLFW.GLFW_KEY_I, "category.kontraption.ship_controls")
+
+    // Madness beggins, RLLY had no better idea for it sry
+    val redInter1 = register("key.kontraption.redstoneinterface1", GLFW.GLFW_KEY_KP_1, "category.kontraption.ship_controls")
+    val redInter2 = register("key.kontraption.redstoneinterface2", GLFW.GLFW_KEY_KP_2, "category.kontraption.ship_controls")
+    val redInter3 = register("key.kontraption.redstoneinterface3", GLFW.GLFW_KEY_KP_3, "category.kontraption.ship_controls")
+    val redInter4 = register("key.kontraption.redstoneinterface4", GLFW.GLFW_KEY_KP_4, "category.kontraption.ship_controls")
+    val redInter5 = register("key.kontraption.redstoneinterface5", GLFW.GLFW_KEY_KP_5, "category.kontraption.ship_controls")
+    val redInter6 = register("key.kontraption.redstoneinterface6", GLFW.GLFW_KEY_KP_6, "category.kontraption.ship_controls") // i could map dis but ehh, dis looks honestly better
 
     // val shipForward = register("key.valkyrienskies.ship_forward", 87, "category.valkyrienskies.driving")
     // val shipBack = register("key.valkyrienskies.ship_back", 83, "category.valkyrienskies.driving")
