@@ -42,15 +42,16 @@ interface ThrusterInterface {
     }
 
     fun disable() {
-        println("DISABLED")
+        println("DISABLED THRUSTER INTERFACE") // was wondering tf dis doin
         if (thrusterLevel !is ServerLevel) return
 
         enabled = false
 
-        KontraptionThrusterControl.getOrCreate(
-            KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), worldPosition)
-                ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), worldPosition)
-                ?: return,
-        ).stopThruster(worldPosition!!)
+        KontraptionThrusterControl
+            .getOrCreate(
+                KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), worldPosition)
+                    ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), worldPosition)
+                    ?: return,
+            ).stopThruster(worldPosition!!)
     }
 }

@@ -175,6 +175,10 @@ repositories {
         name = "Valkyrien Skies Internal"
         url = 'https://maven.valkyrienskies.org'
     }
+    maven {
+        name "zerocore"
+        url "https://maven.zerono.it/"
+    }
 
 
 }
@@ -185,6 +189,9 @@ dependencies {
     // cri
     //annotationProcessor(implementation("com.github.LlamaLad7:MixinExtras:0.1.1"))
 
+
+    //ZEROCORE
+    compileOnly group: "it.zerono.mods.zerocore", name: "ZeroCore2", version: "1.20.1-2.1.40"
 
 
     implementation         ("org.valkyrienskies.core:api:${vs_core_version}")
@@ -202,7 +209,7 @@ dependencies {
     implementation "org.joml:joml:1.10.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
     implementation 'thedarkcolour:kotlinforforge:4.10.0'
-    implementation fg.deobf("curse.maven:cc-tweaked-282001:5379173")
+    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:5379173")
 
 
     compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")

@@ -6,15 +6,21 @@ import mekanism.common.block.attribute.Attribute;
 import mekanism.common.block.attribute.AttributeCustomSelectionBox;
 import mekanism.common.block.attribute.AttributeStateFacing;
 import mekanism.common.block.attribute.Attributes;
-import mekanism.common.content.blocktype.BlockType;
 import mekanism.common.content.blocktype.BlockTypeTile;
 import mekanism.common.registries.MekanismSounds;
-import mekanism.common.util.MekanismUtils;
 import net.illuc.kontraption.blockEntities.*;
-import net.illuc.kontraption.config.KontraptionConfigs;
-import net.minecraft.core.Direction;
+import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterCasing;
+import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterExhaust;
+import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterValve;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCoil;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonController;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonValve;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunCasing;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunCoil;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunController;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunPort;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Property;
 
 public class KontraptionBlockTypes {
 
@@ -126,5 +132,24 @@ public class KontraptionBlockTypes {
             .with(new AttributeStateFacing(BlockStateProperties.FACING))
             .build();
 
+
+    public static final BlockTypeTile<TileEntityIonCasing> LARGE_ION_THRUSTER_CASING = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CASING, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .externalMultiblock()
+            .build();
+    public static final BlockTypeTile<TileEntityIonCoil> LARGE_ION_THRUSTER_COIL = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_COIL, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .with(new AttributeStateFacing(BlockStateProperties.FACING))
+            .build();
+    public static final BlockTypeTile<TileEntityIonValve> LARGE_ION_THRUSTER_VALVE = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_VALVE, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .with(new AttributeStateFacing(BlockStateProperties.FACING))
+            .externalMultiblock()
+            .build();
+    public static final BlockTypeTile<TileEntityIonController> LARGE_ION_THRUSTER_CONTROLLER = BlockTypeTile.BlockTileBuilder
+            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CONTROLLER, MekanismLang.HOLD_FOR_DESCRIPTION)
+            .with(new AttributeStateFacing(BlockStateProperties.FACING))
+            .externalMultiblock()
+            .build();
 
 }

@@ -17,6 +17,7 @@ import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
+import net.minecraftforge.fml.ModList
 import org.joml.Vector3d
 import org.joml.Vector3dc
 import org.valkyrienskies.core.api.ships.ServerShip
@@ -43,12 +44,17 @@ class TileEntityConnector(
     override fun <T> getCapability(
         capability: Capability<T>,
         side: Direction?,
-    ): LazyOptional<T> =
-        if (capability == Capabilities.CAPABILITY_PERIPHERAL as Capability<T>) {
-            peripheralCapability as LazyOptional<T>
+    ): LazyOptional<T> {
+        if (ModList.get().isLoaded("computercraft")) {
+            if (capability == Capabilities.CAPABILITY_PERIPHERAL as Capability<T>) {
+                return peripheralCapability as LazyOptional<T>
+            } else {
+                return super.getCapability(capability, side)
+            }
         } else {
-            super.getCapability(capability, side)
+            return super.getCapability(capability, side)
         }
+    }
 
     fun enable() {
         // as ceo intended
