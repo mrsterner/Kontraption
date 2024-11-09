@@ -8,7 +8,7 @@ import org.joml.Vector3i
 import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.getAttachment
 import org.valkyrienskies.core.api.ships.saveAttachment
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class KontraptionKeyBlockControl {
     data class KeyStone(
@@ -17,7 +17,7 @@ class KontraptionKeyBlockControl {
         @JsonIgnore val be: TileEntityKey?,
     )
 
-    private val keyStones = CopyOnWriteArrayList<KeyStone>()
+    private val keyStones = ConcurrentLinkedQueue<KeyStone>()
 
     fun addKeys(
         pos: BlockPos,
@@ -39,7 +39,7 @@ class KontraptionKeyBlockControl {
         keyStones.removeAll { it.position == pos.toJOML() }
     }
 
-    fun getKeystones(): CopyOnWriteArrayList<KeyStone> = keyStones
+    fun getKeystones(): ConcurrentLinkedQueue<KeyStone> = keyStones
 
     companion object {
         fun getOrCreate(ship: ServerShip): KontraptionKeyBlockControl =

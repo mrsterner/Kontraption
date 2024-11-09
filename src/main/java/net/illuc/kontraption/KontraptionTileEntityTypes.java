@@ -3,6 +3,17 @@ package net.illuc.kontraption;
 import mekanism.common.registration.impl.TileEntityTypeDeferredRegister;
 import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
 import net.illuc.kontraption.blockEntities.*;
+import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterCasing;
+import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterExhaust;
+import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterValve;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCoil;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonController;
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonValve;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunCasing;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunCoil;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunController;
+import net.illuc.kontraption.blockEntities.railgun.TileEntityRailgunPort;
 
 public class KontraptionTileEntityTypes {
     private KontraptionTileEntityTypes() {
@@ -28,5 +39,12 @@ public class KontraptionTileEntityTypes {
     public static final TileEntityTypeRegistryObject<TileEntityRailgunPort> RAILGUN_PORT = TILE_ENTITY_TYPES.register(KontraptionBlocks.RAILGUN_PORT, TileEntityRailgunPort::new);
     public static final TileEntityTypeRegistryObject<TileEntityConnector> CONNECTOR = TILE_ENTITY_TYPES.register(KontraptionBlocks.CONNECTOR, TileEntityConnector::new);
     public static final TileEntityTypeRegistryObject<TileEntityKey> KEY = TILE_ENTITY_TYPES.register(KontraptionBlocks.KEY, TileEntityKey::new);
+
+    public static final TileEntityTypeRegistryObject<TileEntityIonCasing> LARGE_ION_THRUSTER_CASING = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_CASING, TileEntityIonCasing::new);
+    public static final TileEntityTypeRegistryObject<TileEntityIonCoil> LARGE_ION_THRUSTER_COIL = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_COIL, TileEntityIonCoil::new);
+    public static final TileEntityTypeRegistryObject<TileEntityIonValve> LARGE_ION_THRUSTER_VALVE = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_VALVE, TileEntityIonValve::new);
+    public static final TileEntityTypeRegistryObject<TileEntityIonController> LARGE_ION_THRUSTER_CONTROLLER = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_CONTROLLER, TileEntityIonController::new);
+
+
 
 }

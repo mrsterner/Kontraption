@@ -12,6 +12,7 @@ import net.illuc.kontraption.ClientEvents.ClientRuntimeEvents
 import net.illuc.kontraption.KontraptionParticleTypes.MUZZLE_FLASH
 import net.illuc.kontraption.KontraptionParticleTypes.THRUSTER
 import net.illuc.kontraption.blockEntities.TileEntityCannon
+import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing
 import net.illuc.kontraption.client.KontraptionClientTickHandler
 import net.illuc.kontraption.client.MuzzleFlashParticle
 import net.illuc.kontraption.client.ThrusterParticle
@@ -19,19 +20,24 @@ import net.illuc.kontraption.client.gui.GuiGun
 import net.illuc.kontraption.command.CommandKontraption
 import net.illuc.kontraption.config.KontraptionConfigs
 import net.illuc.kontraption.config.KontraptionKeyBindings
+import net.illuc.kontraption.debugger.DebugCommands
 import net.illuc.kontraption.entity.KontraptionShipMountingEntity
 import net.illuc.kontraption.events.EventListener
 import net.illuc.kontraption.gui.ShipTerminalMenu
 import net.illuc.kontraption.gui.ShipTerminalScreen
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterMultiblockData
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterValidator
+import net.illuc.kontraption.multiblocks.largeion.LargeIonMultiblockData
+import net.illuc.kontraption.multiblocks.largeion.LargeIonValidator
 import net.illuc.kontraption.multiblocks.railgun.RailgunMultiblockData
 import net.illuc.kontraption.multiblocks.railgun.RailgunValidator
 import net.illuc.kontraption.network.KontraptionPacketHandler
+import net.illuc.kontraption.renderers.LargeIonRenderer
 import net.illuc.kontraption.util.BlockDamageManager
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.particle.SpriteSet
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
@@ -43,6 +49,7 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.EntityRenderersEvent
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent
 import net.minecraftforge.common.MinecraftForge
@@ -64,6 +71,8 @@ import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.RegisterEvent
 import net.minecraftforge.registries.RegistryObject
 import net.minecraftforge.versions.forge.ForgeVersion.MOD_ID
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.valkyrienskies.mod.client.EmptyRenderer
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
@@ -77,6 +86,8 @@ import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
 @Mod(Kontraption.MODID)
 class Kontraption : IModModule {
+    val logger: Logger = LogManager.getLogger(Kontraption::class.java) // LOGGER FFS
+
     /**
      * Kontraption version number
      */
@@ -134,6 +145,8 @@ class Kontraption : IModModule {
             }
 
         modEventBus.addListener(::clientSetup)
+        modEventBus.addListener(::registerModels)
+        modEventBus.addListener(::registerBER)
         modEventBus.addListener(::entityRenderers)
         MinecraftForge.EVENT_BUS.addListener(::levelLoad)
         modEventBus.addListener(::loadComplete)
@@ -207,6 +220,19 @@ class Kontraption : IModModule {
 
     private fun registerCommands(event: RegisterCommandsEvent) {
         event.dispatcher.register(CommandKontraption.register())
+        DebugCommands.register(event.dispatcher)
+    }
+
+    private fun registerModels(event: ModelEvent.RegisterAdditional) {
+        event.register(ResourceLocation(MODID, "block/large_ion_ring_segment"))
+        event.register(ResourceLocation(MODID, "block/large_ion_ring_input"))
+        event.register(ResourceLocation(MODID, "block/large_ion_ring_controller"))
+        event.register(ResourceLocation(MODID, "block/large_ion_ring_corner"))
+    }
+
+    private fun registerBER(event: EntityRenderersEvent.RegisterRenderers) {
+        logger.info("[TEST] RENDERER REGISTERED UWU") // We use this one ONLY for BlockEntity Renderers
+        event.registerBlockEntityRenderer<TileEntityIonCasing>(KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CASING.get(), BlockEntityRendererProvider<TileEntityIonCasing> { context: BlockEntityRendererProvider.Context? -> LargeIonRenderer(context) })
     }
 
     private fun onConfigLoad(configEvent: ModConfigEvent) {
@@ -239,6 +265,12 @@ class Kontraption : IModModule {
                 "hydrogenThruster",
                 { MultiblockCache<LiquidFuelThrusterMultiblockData?>() },
                 { LiquidFuelThrusterValidator() },
+            )
+        val largeIonThrusterManager: MultiblockManager<LargeIonMultiblockData?> =
+            MultiblockManager(
+                "largeionthruster",
+                { MultiblockCache<LargeIonMultiblockData?>() },
+                { LargeIonValidator() },
             )
         val railgunManager: MultiblockManager<RailgunMultiblockData?> =
             MultiblockManager("railgun", { MultiblockCache<RailgunMultiblockData?>() }, { RailgunValidator() })
@@ -309,6 +341,9 @@ class Kontraption : IModModule {
                 output.accept(KontraptionBlocks.GYRO)
                 output.accept(KontraptionBlocks.CONNECTOR)
                 output.accept(KontraptionBlocks.KEY)
+                output.accept(KontraptionBlocks.LARGE_ION_THRUSTER_CASING)
+                output.accept(KontraptionBlocks.LARGE_ION_THRUSTER_COIL)
+                output.accept(KontraptionBlocks.LARGE_ION_THRUSTER_VALVE)
                 // output.accept(KontraptionBlocks.SERVO)
                 // output.accept(KontraptionBlocks.WHEEL)
             }.build()
