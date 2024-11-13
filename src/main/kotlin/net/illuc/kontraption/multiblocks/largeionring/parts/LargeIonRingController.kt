@@ -4,7 +4,7 @@ import it.zerono.mods.zerocore.base.CommonConstants
 import it.zerono.mods.zerocore.lib.block.TileCommandDispatcher
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.PartPosition
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator
-import net.illuc.kontraption.KontraptionTileEntityTypes
+import net.illuc.kontraption.GlobalRegistry
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
@@ -13,7 +13,7 @@ import net.minecraftforge.client.model.data.ModelData
 class LargeIonRingController(
     position: BlockPos,
     blockState: BlockState,
-) : AbstractRingEntity(KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CONTROLLER.get(), position, blockState) {
+) : AbstractRingEntity(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CONTROLLER.get(), position, blockState) {
     init {
         setCommandDispatcher(
             TileCommandDispatcher

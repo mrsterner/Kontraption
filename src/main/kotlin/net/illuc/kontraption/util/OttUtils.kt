@@ -56,12 +56,13 @@ object OttUtils {
                     val isSpecialCell = (x <= 1 || x >= width - 2) && (z == 0 || z == 1 || z == depth - 1 || z == depth - 2) && !isCorner
                     when {
                         layer == height - 1 && isCorner -> 4
-                        isSpecialCell -> 1
+                        isSpecialCell && !isInner -> 1
                         layer == height - 1 && isEdge -> 3
+                        isCorner && layer == 0 -> 1
                         isCorner -> 2
                         layer > 0 && isEdge -> 1
                         !isnInner && isInner && layer == 0 -> 1
-                        !isnInner && isInner && layer > 0 -> 2
+                        !isnInner && isInner && layer > 0 -> 5
                         layer > 0 -> 0
                         else -> if (isEdge) 2 else 0
                     }

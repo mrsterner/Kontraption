@@ -40,9 +40,6 @@ public class KontraptionTileEntityTypes {
     public static final TileEntityTypeRegistryObject<TileEntityRailgunPort> RAILGUN_PORT = TILE_ENTITY_TYPES.register(KontraptionBlocks.RAILGUN_PORT, TileEntityRailgunPort::new);
     public static final TileEntityTypeRegistryObject<TileEntityConnector> CONNECTOR = TILE_ENTITY_TYPES.register(KontraptionBlocks.CONNECTOR, TileEntityConnector::new);
     public static final TileEntityTypeRegistryObject<TileEntityKey> KEY = TILE_ENTITY_TYPES.register(KontraptionBlocks.KEY, TileEntityKey::new);
-    public static final TileEntityTypeRegistryObject<TileEntityIonCoil> LARGE_ION_THRUSTER_COIL = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_COIL, TileEntityIonCoil::new);
-    public static final TileEntityTypeRegistryObject<TileEntityIonValve> LARGE_ION_THRUSTER_VALVE = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_VALVE, TileEntityIonValve::new);
-    public static final TileEntityTypeRegistryObject<TileEntityIonController> LARGE_ION_THRUSTER_CONTROLLER = TILE_ENTITY_TYPES.register(KontraptionBlocks.LARGE_ION_THRUSTER_CONTROLLER, TileEntityIonController::new);
 
 
 
