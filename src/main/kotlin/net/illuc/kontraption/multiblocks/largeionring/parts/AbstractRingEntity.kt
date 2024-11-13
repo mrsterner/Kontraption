@@ -2,6 +2,8 @@ package net.illuc.kontraption.multiblocks.largeionring.parts
 
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity
 import it.zerono.mods.zerocore.lib.block.multiblock.IMultiblockPartTypeProvider
+import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage
+import it.zerono.mods.zerocore.lib.energy.NullEnergyHandlers
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.PartPosition
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator
 import net.illuc.kontraption.multiblocks.largeionring.IIonRingPartType
@@ -37,6 +39,8 @@ abstract class AbstractRingEntity(
             .filter(LargeIonRingMultiBlock::isAssembled)
             .ifPresent { c: LargeIonRingMultiBlock -> c.setMachineActive(active) }
     }
+
+    fun getEnergyStorage(): IWideEnergyStorage = this.evalOnController(LargeIonRingMultiBlock::getEnergyStorage, NullEnergyHandlers.STORAGE)
 
     override fun isGoodForPosition(
         p0: PartPosition,

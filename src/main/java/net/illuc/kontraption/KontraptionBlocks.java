@@ -56,10 +56,6 @@ public class KontraptionBlocks {
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_CONTROLLER = BLOCKS.register("railgun_controller", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_CONTROLLER, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_PORT = BLOCKS.register("railgun_port", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_PORT, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
 
-    public static final BlockRegistryObject<BlockIonValve, BlockItem> LARGE_ION_THRUSTER_VALVE = BLOCKS.register("large_ion_thruster_valve", () -> new BlockIonValve(KontraptionBlockTypes.LARGE_ION_THRUSTER_VALVE));
-    public static final BlockRegistryObject<BlockIonCoil, BlockItem> LARGE_ION_THRUSTER_COIL = BLOCKS.register("large_ion_thruster_coil", () -> new BlockIonCoil(KontraptionBlockTypes.LARGE_ION_THRUSTER_COIL));
-    public static final BlockRegistryObject<BlockIonController, BlockItem> LARGE_ION_THRUSTER_CONTROLLER = BLOCKS.register("large_ion_thruster_controller", () -> new BlockIonController(KontraptionBlockTypes.LARGE_ION_THRUSTER_CONTROLLER));
-
 }
 
 

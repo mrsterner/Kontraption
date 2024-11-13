@@ -7,9 +7,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 
 class StructReq(
-    private val allowedLayers: Array<Array<ByteArray>>,
     private val blockMappings: Map<Byte, List<Block>>,
-    private val cbb: CuboidBoundingBox,
 ) {
     /**
      * Checks if the block at a given position satisfies the structure requirement for this Array of Layers.
@@ -22,7 +20,9 @@ class StructReq(
         world: Level,
         pos: BlockPos,
         airc: Boolean,
+        cbb: CuboidBoundingBox,
     ): Pair<Boolean, Byte> {
+        val allowedLayers: Array<Array<ByteArray>> = OttUtils.generateAllowedLayers(cbb.lengthX, cbb.lengthZ, 2)
         if (cbb.lengthY == allowedLayers.size) {
             val relativePos = pos.subtract(Vec3i(cbb.minX, cbb.minY, cbb.minZ))
             val layer = relativePos.y

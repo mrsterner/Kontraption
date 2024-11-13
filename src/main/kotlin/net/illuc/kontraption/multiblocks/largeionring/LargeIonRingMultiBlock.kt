@@ -1,8 +1,6 @@
 package net.illuc.kontraption.multiblocks.largeionring
 
-import RingHelper
 import it.zerono.mods.zerocore.lib.IActivableMachine
-import it.zerono.mods.zerocore.lib.block.ModBlock
 import it.zerono.mods.zerocore.lib.energy.EnergyBuffer
 import it.zerono.mods.zerocore.lib.energy.EnergySystem
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage
@@ -68,11 +66,14 @@ open class LargeIonRingMultiBlock(
         mapOf(
             1.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
             2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
+            2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_VALVE.get()),
+            2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CONTROLLER.get()),
             3.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
             4.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
+            5.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_COIL.get()),
         )
-    private val ALLOWED_LAYERS: Array<Array<ByteArray>> = OttUtils.generateAllowedLayers(boundingBox.lengthX, boundingBox.lengthZ, 2)
-    private val structureRequirement = StructReq(ALLOWED_LAYERS, blockMappings, this.boundingBox)
+
+    val structureRequirement = StructReq(blockMappings)
 
     // nukes internall stuff
     fun reset() {
@@ -199,21 +200,7 @@ open class LargeIonRingMultiBlock(
         y: Int,
         z: Int,
         validatorCallback: IMultiblockValidator,
-    ): Boolean {
-        val position = BlockPos(x, y, z)
-        val blockState = world.getBlockState(position)
-
-        if (RingHelper.isValidInterior(blockState)) {
-            return true
-        }
-
-        validatorCallback.setLastError(
-            position,
-            "multiblock.validation.reactor.invalid_block_for_interior",
-            ModBlock.getNameForTranslation(blockState.block),
-        )
-        return false // scrap code, to deletion
-    }
+    ): Boolean = false
 
     override fun onAssimilated(p0: IMultiblockController<LargeIonRingMultiBlock>) {
         println("WARNING ASSIMILATED")
@@ -296,9 +283,9 @@ open class LargeIonRingMultiBlock(
             for (y in minY..maxY) {
                 for (z in minZ..maxZ) {
                     val pos = BlockPos(x, y, z).mutable()
-                    val sR = structureRequirement.isValidBlock(world, pos, true)
+                    val sR = structureRequirement.isValidBlock(world, pos, true, boundingBox)
                     if (!sR.first) {
-                        validatorCallback.setLastError(pos, "Invalid block type for this position", *arrayOfNulls(0))
+                        validatorCallback.setLastError(pos, "Invalid block type for this position ${sR.first} and ${sR.second}", *arrayOfNulls(0))
                         return false
                     } else {
                         val be = world.getBlockEntity(pos) as? TileEntityIonCasing

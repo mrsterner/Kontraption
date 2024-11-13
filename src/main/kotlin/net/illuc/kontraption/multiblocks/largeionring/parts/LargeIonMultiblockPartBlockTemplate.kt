@@ -1,10 +1,10 @@
 package net.illuc.kontraption.multiblocks.largeionring.parts
 
-import it.zerono.mods.zerocore.lib.block.multiblock.IMultiblockPartType
 import it.zerono.mods.zerocore.lib.block.multiblock.MultiblockPartBlock
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController
-import net.illuc.kontraption.blocks.BlockIonCasing
+import net.illuc.kontraption.multiblocks.largeionring.IIonRingPartType
 import net.minecraft.core.Direction
+import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.RenderShape
@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 
-open class LargeIonMultiblockPartBlockTemplate<Controller : IMultiblockController<Controller>, PartType : IMultiblockPartType>(
+open class LargeIonMultiblockPartBlockTemplate<Controller : IMultiblockController<Controller>, PartType : IIonRingPartType>(
     properties: MultiblockPartProperties<PartType>,
 ) : MultiblockPartBlock<Controller, PartType>(properties),
     EntityBlock {
@@ -22,16 +22,24 @@ open class LargeIonMultiblockPartBlockTemplate<Controller : IMultiblockControlle
         registerDefaultState(
             stateDefinition
                 .any()
-                .setValue(BlockIonCasing.ASS, false)
-                .setValue(BlockIonCasing.SR, false)
-                .setValue(BlockIonCasing.ROT, Direction.UP)
-                .setValue(BlockIonCasing.STATETYPE, 0),
+                .setValue(ASS, false)
+                .setValue(SR, false)
+                .setValue(ROT, Direction.UP)
+                .setValue(STATETYPE, 0)
+                .setValue(FACING, Direction.NORTH),
         )
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(BlockIonCasing.ASS, BlockIonCasing.SR, BlockIonCasing.ROT, BlockIonCasing.STATETYPE)
+        builder.add(ASS, SR, ROT, STATETYPE, FACING)
     }
+
+    override fun getStateForPlacement(context: BlockPlaceContext): BlockState =
+        if (!partType.equals(IonRingPartTypes.Coil)) {
+            defaultBlockState().setValue(FACING, context.horizontalDirection.opposite)
+        } else {
+            defaultBlockState().setValue(FACING, context.nearestLookingDirection.opposite)
+        }
 
     @Deprecated("Annoying ass IDE", ReplaceWith("Nothing, bc overriding is fine"))
     override fun getRenderShape(pState: BlockState): RenderShape =
@@ -42,6 +50,7 @@ open class LargeIonMultiblockPartBlockTemplate<Controller : IMultiblockControlle
         }
 
     companion object {
+        val FACING: DirectionProperty = DirectionProperty.create("facing", *Direction.entries.toTypedArray())
         val ASS: BooleanProperty = BooleanProperty.create("ass")
         val SR: BooleanProperty = BooleanProperty.create("srender")
         val ROT: DirectionProperty = DirectionProperty.create("rotation")

@@ -134,20 +134,5 @@ public class KontraptionBlockTypes {
             .build();
 
 
-    public static final BlockTypeTile<TileEntityIonCoil> LARGE_ION_THRUSTER_COIL = BlockTypeTile.BlockTileBuilder
-            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_COIL, MekanismLang.HOLD_FOR_DESCRIPTION)
-            .with(new AttributeStateFacing(BlockStateProperties.FACING))
-            .build();
-    public static final BlockTypeTile<TileEntityIonValve> LARGE_ION_THRUSTER_VALVE = BlockTypeTile.BlockTileBuilder
-            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_VALVE, MekanismLang.HOLD_FOR_DESCRIPTION)
-            .with(new AttributeStateFacing(BlockStateProperties.FACING))
-            .externalMultiblock()
-            .build();
-    public static final BlockTypeTile<TileEntityIonController> LARGE_ION_THRUSTER_CONTROLLER = BlockTypeTile.BlockTileBuilder
-            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CONTROLLER, MekanismLang.HOLD_FOR_DESCRIPTION)
-            .with(new AttributeStateFacing(BlockStateProperties.FACING))
-            .externalMultiblock()
-            .build();
-
 
 }
