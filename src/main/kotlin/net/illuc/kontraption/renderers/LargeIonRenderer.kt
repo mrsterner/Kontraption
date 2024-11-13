@@ -2,8 +2,8 @@ package net.illuc.kontraption.renderers
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.illuc.kontraption.Kontraption
-import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing
-import net.illuc.kontraption.blocks.BlockIonCasing
+import net.illuc.kontraption.multiblocks.largeionring.parts.LargeIonMultiblockPartBlockTemplate
+import net.illuc.kontraption.multiblocks.largeionring.parts.LargeIonRingCasingEntity
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger
 
 class LargeIonRenderer(
     context: BlockEntityRendererProvider.Context?,
-) : BlockEntityRenderer<TileEntityIonCasing?> {
+) : BlockEntityRenderer<LargeIonRingCasingEntity?> {
     private val resourcesz = ResourceLocation(Kontraption.MODID, "block/large_ion_ring_segment")
     private val valveresourcesz = ResourceLocation(Kontraption.MODID, "block/large_ion_ring_input")
     private val controllerresourcesz = ResourceLocation(Kontraption.MODID, "block/large_ion_ring_controller")
@@ -50,7 +50,7 @@ class LargeIonRenderer(
     }
 
     override fun render(
-        blockEntity: TileEntityIonCasing?,
+        blockEntity: LargeIonRingCasingEntity?,
         partialTicks: Float,
         poseStack: PoseStack,
         buffer: MultiBufferSource,
@@ -60,10 +60,10 @@ class LargeIonRenderer(
         if (blockEntity == null) {
             return
         }
-        val rotation = blockEntity.blockState.getValue(BlockIonCasing.ROT)
-        var assembled = blockEntity.multiblock?.isFormed ?: false
-        var sr = blockEntity.blockState.getValue(BlockIonCasing.SR)
-        var state = blockEntity.blockState.getValue(BlockIonCasing.STATETYPE)
+        val rotation = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.ROT)
+        val assembled = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.ASS)
+        val sr = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.SR)
+        val state = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.STATETYPE)
 
         when (state) {
             0 -> fmodelz = modelz
@@ -117,9 +117,9 @@ class LargeIonRenderer(
     }
 
     override fun shouldRender(
-        blockEntity: TileEntityIonCasing?,
+        blockEntity: LargeIonRingCasingEntity?,
         cameraPosition: Vec3,
     ): Boolean = true
 
-    override fun shouldRenderOffScreen(blockEntity: TileEntityIonCasing?): Boolean = true
+    override fun shouldRenderOffScreen(blockEntity: LargeIonRingCasingEntity?): Boolean = true
 }

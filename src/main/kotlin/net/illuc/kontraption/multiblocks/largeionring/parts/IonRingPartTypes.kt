@@ -1,10 +1,8 @@
 package net.illuc.kontraption.multiblocks.largeionring.parts
 
-import it.zerono.mods.zerocore.base.multiblock.part.GenericDeviceBlock
 import it.zerono.mods.zerocore.lib.block.multiblock.MultiblockPartBlock
 import it.zerono.mods.zerocore.lib.block.multiblock.MultiblockPartTypeProperties
-import net.illuc.kontraption.KontraptionTileEntityTypes
-import net.illuc.kontraption.multiblocks.common.PowerTapBlock
+import net.illuc.kontraption.GlobalRegistry
 import net.illuc.kontraption.multiblocks.largeionring.IIonRingPartType
 import net.illuc.kontraption.multiblocks.largeionring.LargeIonRingMultiBlock
 import net.minecraft.world.level.block.entity.BlockEntityType
@@ -12,28 +10,30 @@ import net.minecraftforge.common.util.NonNullSupplier
 
 enum class IonRingPartTypes(
     private val tileTypeSupplier: NonNullSupplier<NonNullSupplier<BlockEntityType<*>>>,
-    private val blockFactory: (MultiblockPartBlock.MultiblockPartProperties<IIonRingPartType>) -> MultiblockPartBlock<LargeIonRingMultiBlock, IIonRingPartType>,
+    private val blockFactory: (MultiblockPartBlock.MultiblockPartProperties<IIonRingPartType>) -> LargeIonMultiblockPartBlockTemplate<LargeIonRingMultiBlock, IIonRingPartType>,
     private val translationKey: String = "",
 ) : IIonRingPartType {
     Casing(
-        NonNullSupplier { NonNullSupplier(KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CASING::get) },
-        { props -> MultiblockPartBlock(props) },
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        { props -> LargeIonMultiblockPartBlockTemplate(props) },
+        "block.kontraption.largeionringcasing",
     ),
     Coil(
-        NonNullSupplier { NonNullSupplier(KontraptionTileEntityTypes.LARGE_ION_THRUSTER_COIL::get) },
-        { props -> MultiblockPartBlock(props) },
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        { props -> LargeIonMultiblockPartBlockTemplate(props) },
+        "block.kontraption.coppercoil",
     ),
 
     Controller(
-        NonNullSupplier { NonNullSupplier(net.illuc.kontraption.KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CONTROLLER::get) },
-        { props -> GenericDeviceBlock(props) },
-        "block.largemultiblock.largeionringcontroller",
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        { props -> LargeIonMultiblockPartBlockTemplate(props) },
+        "block.kontraption.largeionringcontroller",
     ),
 
     PowerPortRF(
-        NonNullSupplier { NonNullSupplier(net.illuc.kontraption.KontraptionTileEntityTypes.LARGE_ION_THRUSTER_VALVE::get) },
-        { props -> PowerTapBlock(props) },
-        "block.largemultiblock.largeionringpowerportfe",
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        { props -> LargeIonMultiblockPartBlockTemplate(props) },
+        "block.kontraption.largeionringpowerportrf",
     ),
     ;
 

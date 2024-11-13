@@ -12,7 +12,6 @@ import net.illuc.kontraption.ClientEvents.ClientRuntimeEvents
 import net.illuc.kontraption.KontraptionParticleTypes.MUZZLE_FLASH
 import net.illuc.kontraption.KontraptionParticleTypes.THRUSTER
 import net.illuc.kontraption.blockEntities.TileEntityCannon
-import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing
 import net.illuc.kontraption.client.KontraptionClientTickHandler
 import net.illuc.kontraption.client.MuzzleFlashParticle
 import net.illuc.kontraption.client.ThrusterParticle
@@ -37,7 +36,7 @@ import net.illuc.kontraption.util.BlockDamageManager
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.particle.SpriteSet
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
@@ -76,43 +75,29 @@ import org.apache.logging.log4j.Logger
 import org.valkyrienskies.mod.client.EmptyRenderer
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
-/**
- * Main mod class. Should be an `object` declaration annotated with `@Mod`.
- * The modid should be declared in this object and should match the modId entry
- * in mods.toml.
- *
- * An example for blocks is in the `blocks` package of this mod.
- */
-
 @Mod(Kontraption.MODID)
 class Kontraption : IModModule {
     val logger: Logger = LogManager.getLogger(Kontraption::class.java) // LOGGER FFS
 
-    /**
-     * Kontraption version number
-     */
+    // Versioning
     val versionNumber: Version
-
-    /**
-     * Kontraption Packet Pipeline
-     */
     private val packetHandler: KontraptionPacketHandler
 
     private val KONTRAPTION_SHIP_MOUNTING_ENTITY_REGISTRY: RegistryObject<EntityType<KontraptionShipMountingEntity>>
-    private val ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Kontraption.MODID)
+    private val ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID)
     val TAB_REGISTER: DeferredRegister<CreativeModeTab> = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID)
 
     // = TODO()
 
     init {
         instance = this
-        // MekanismGeneratorsConfig.registerConfigs(ModLoadingContext.get())
         val modEventBus = MOD_BUS
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands)
         KontraptionConfigs.registerConfigs(ModLoadingContext.get())
         if (FMLEnvironment.dist.isClient) {
             modEventBus.addListener(::registerKeyBindings)
         }
+        GlobalRegistry.EventInit(modEventBus)
         modEventBus.addListener(this::commonSetup)
         modEventBus.addListener(this::onConfigLoad)
         modEventBus.addListener(this::imcQueue)
@@ -128,9 +113,7 @@ class Kontraption : IModModule {
         KontraptionSounds.SOUND_EVENTS.register(modEventBus)
         // note for ottery: in future move to seperate file
         MENU_TYPES.register(modEventBus)
-        // GeneratorsGases.GASES.register(modEventBus)
-        // GeneratorsModules.MODULES.register(modEventBus)
-        // Set our version number to match the mods.toml file, which matches the one in our build.gradle
+        // we should version eariel ya know?
         versionNumber = Version(ModLoadingContext.get().activeContainer)
         packetHandler = KontraptionPacketHandler()
 
@@ -141,7 +124,7 @@ class Kontraption : IModModule {
                         ::KontraptionShipMountingEntity,
                         MobCategory.MISC,
                     ).sized(.3f, .3f)
-                    .build(ResourceLocation(Kontraption.MODID, "kontraption_ship_mounting_entity").toString())
+                    .build(ResourceLocation(MODID, "kontraption_ship_mounting_entity").toString())
             }
 
         modEventBus.addListener(::clientSetup)
@@ -232,7 +215,7 @@ class Kontraption : IModModule {
 
     private fun registerBER(event: EntityRenderersEvent.RegisterRenderers) {
         logger.info("[TEST] RENDERER REGISTERED UWU") // We use this one ONLY for BlockEntity Renderers
-        event.registerBlockEntityRenderer<TileEntityIonCasing>(KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CASING.get(), BlockEntityRendererProvider<TileEntityIonCasing> { context: BlockEntityRendererProvider.Context? -> LargeIonRenderer(context) })
+        logger.info("[TEST] CURRENTLY UNUSED AS BER REGISTRATION IS MOVED TO CLIENT INIT")
     }
 
     private fun onConfigLoad(configEvent: ModConfigEvent) {
@@ -293,11 +276,18 @@ class Kontraption : IModModule {
             // Minecraft.getInstance().particleEngine.register(BULLET.get()) { spriteSet: SpriteSet? -> BulletParticle.Factory(spriteSet) }
         }
 
+        private fun registerTRenderers() {
+            BlockEntityRenderers.register(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING.get(), ::LargeIonRenderer)
+        }
+
         @SubscribeEvent
-        fun init(event: FMLClientSetupEvent?) {
+        fun init(event: FMLClientSetupEvent) {
             MinecraftForge.EVENT_BUS.register(KontraptionClientTickHandler())
-            event!!.enqueueWork {
+            event.enqueueWork {
                 MenuScreens.register(TERMINALMENU.get(), ::ShipTerminalScreen)
+                var logger: Logger = LogManager.getLogger(Kontraption::class)
+                logger.info("TRYING TO LOAD TRENDERER")
+                registerTRenderers()
             }
         }
 
@@ -341,9 +331,9 @@ class Kontraption : IModModule {
                 output.accept(KontraptionBlocks.GYRO)
                 output.accept(KontraptionBlocks.CONNECTOR)
                 output.accept(KontraptionBlocks.KEY)
-                output.accept(KontraptionBlocks.LARGE_ION_THRUSTER_CASING)
                 output.accept(KontraptionBlocks.LARGE_ION_THRUSTER_COIL)
                 output.accept(KontraptionBlocks.LARGE_ION_THRUSTER_VALVE)
+                output.accept(GlobalRegistry.Items.LARGE_ION_THRUSTER_CASING.get())
                 // output.accept(KontraptionBlocks.SERVO)
                 // output.accept(KontraptionBlocks.WHEEL)
             }.build()

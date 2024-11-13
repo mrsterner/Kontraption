@@ -4,11 +4,19 @@ import mekanism.common.block.prefab.BlockBasicMultiblock;
 import mekanism.common.registration.impl.BlockDeferredRegister;
 import mekanism.common.registration.impl.BlockRegistryObject;
 import net.illuc.kontraption.blocks.*;
+import net.illuc.kontraption.multiblocks.largeionring.IIonRingPartType;
+import net.illuc.kontraption.multiblocks.largeionring.LargeIonRingMultiBlock;
+import net.illuc.kontraption.multiblocks.largeionring.parts.IonRingPartTypes;
+import net.illuc.kontraption.multiblocks.largeionring.parts.LargeIonMultiblockPartBlockTemplate;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
+//EVERYTHING IS TO BE MOVED TO GLOBALREGISTRY
 public class KontraptionBlocks {
     private KontraptionBlocks() {
     }
@@ -20,10 +28,10 @@ public class KontraptionBlocks {
     ) {
     }
 
-    ;
 
 
     public static final BlockDeferredRegister BLOCKS = new BlockDeferredRegister(Kontraption.MODID);
+    //<------PRE-DEFS---->
 
     // <-----BLOCKS----->
     //public static final BlockRegistryObject<BlockTile.BlockTileModel<TileEntityIonThruster, Machine<TileEntityIonThruster>>, ItemBlockMachine> ION_THRUSTER = BLOCKS.register("ion_thruster", () -> new BlockTile.BlockTileModel<>(KontraptionBlockTypes.ION_THRUSTER), ItemBlockMachine::new);
@@ -48,11 +56,10 @@ public class KontraptionBlocks {
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_CONTROLLER = BLOCKS.register("railgun_controller", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_CONTROLLER, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_PORT = BLOCKS.register("railgun_port", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_PORT, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
 
-    public static final BlockRegistryObject<BlockIonCasing, BlockItem> LARGE_ION_THRUSTER_CASING = BLOCKS.register("large_ion_thruster_casing", () -> new BlockIonCasing(KontraptionBlockTypes.LARGE_ION_THRUSTER_CASING));
     public static final BlockRegistryObject<BlockIonValve, BlockItem> LARGE_ION_THRUSTER_VALVE = BLOCKS.register("large_ion_thruster_valve", () -> new BlockIonValve(KontraptionBlockTypes.LARGE_ION_THRUSTER_VALVE));
     public static final BlockRegistryObject<BlockIonCoil, BlockItem> LARGE_ION_THRUSTER_COIL = BLOCKS.register("large_ion_thruster_coil", () -> new BlockIonCoil(KontraptionBlockTypes.LARGE_ION_THRUSTER_COIL));
     public static final BlockRegistryObject<BlockIonController, BlockItem> LARGE_ION_THRUSTER_CONTROLLER = BLOCKS.register("large_ion_thruster_controller", () -> new BlockIonController(KontraptionBlockTypes.LARGE_ION_THRUSTER_CONTROLLER));
 
-
-
 }
+
+
