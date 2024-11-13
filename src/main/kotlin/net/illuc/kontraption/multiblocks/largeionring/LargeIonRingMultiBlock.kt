@@ -11,7 +11,7 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator
-import net.illuc.kontraption.KontraptionBlocks
+import net.illuc.kontraption.GlobalRegistry
 import net.illuc.kontraption.ThrusterInterface
 import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing
 import net.illuc.kontraption.particles.ThrusterParticleData
@@ -27,7 +27,7 @@ import org.joml.Vector3d
 import org.valkyrienskies.core.api.ships.Ship
 import java.util.function.Consumer
 
-class LargeIonRingMultiBlock(
+open class LargeIonRingMultiBlock(
     world: Level,
 ) : AbstractCuboidMultiblockController<LargeIonRingMultiBlock>(world),
     ThrusterInterface,
@@ -66,10 +66,10 @@ class LargeIonRingMultiBlock(
 
     val blockMappings: Map<Byte, List<Block>> =
         mapOf(
-            1.toByte() to listOf(KontraptionBlocks.LARGE_ION_THRUSTER_CASING.block),
-            2.toByte() to listOf(KontraptionBlocks.LARGE_ION_THRUSTER_CASING.block),
-            3.toByte() to listOf(KontraptionBlocks.LARGE_ION_THRUSTER_CASING.block),
-            4.toByte() to listOf(KontraptionBlocks.LARGE_ION_THRUSTER_CASING.block),
+            1.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
+            2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
+            3.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
+            4.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
         )
     private val ALLOWED_LAYERS: Array<Array<ByteArray>> = OttUtils.generateAllowedLayers(boundingBox.lengthX, boundingBox.lengthZ, 2)
     private val structureRequirement = StructReq(ALLOWED_LAYERS, blockMappings, this.boundingBox)

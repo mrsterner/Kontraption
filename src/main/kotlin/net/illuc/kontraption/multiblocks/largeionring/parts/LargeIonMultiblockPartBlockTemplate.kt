@@ -1,4 +1,4 @@
-package net.illuc.kontraption.multiblocks.partblockextensions
+package net.illuc.kontraption.multiblocks.largeionring.parts
 
 import it.zerono.mods.zerocore.lib.block.multiblock.IMultiblockPartType
 import it.zerono.mods.zerocore.lib.block.multiblock.MultiblockPartBlock
@@ -14,9 +14,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 
-class LargeIonMultiblockPartBlock<Controller : IMultiblockController<Controller>, PartType : IMultiblockPartType>(
-    properties: Properties,
-) : MultiblockPartBlock<Controller, PartType>(),
+open class LargeIonMultiblockPartBlockTemplate<Controller : IMultiblockController<Controller>, PartType : IMultiblockPartType>(
+    properties: MultiblockPartProperties<PartType>,
+) : MultiblockPartBlock<Controller, PartType>(properties),
     EntityBlock {
     init {
         registerDefaultState(
@@ -33,6 +33,7 @@ class LargeIonMultiblockPartBlock<Controller : IMultiblockController<Controller>
         builder.add(BlockIonCasing.ASS, BlockIonCasing.SR, BlockIonCasing.ROT, BlockIonCasing.STATETYPE)
     }
 
+    @Deprecated("Annoying ass IDE", ReplaceWith("Nothing, bc overriding is fine"))
     override fun getRenderShape(pState: BlockState): RenderShape =
         if (pState.getValue(ASS) == true) {
             RenderShape.ENTITYBLOCK_ANIMATED

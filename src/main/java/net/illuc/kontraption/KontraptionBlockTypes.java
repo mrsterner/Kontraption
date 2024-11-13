@@ -7,6 +7,7 @@ import mekanism.common.block.attribute.AttributeCustomSelectionBox;
 import mekanism.common.block.attribute.AttributeStateFacing;
 import mekanism.common.block.attribute.Attributes;
 import mekanism.common.content.blocktype.BlockTypeTile;
+import mekanism.common.registration.impl.BlockRegistryObject;
 import mekanism.common.registries.MekanismSounds;
 import net.illuc.kontraption.blockEntities.*;
 import net.illuc.kontraption.blockEntities.largehydrogen.TileEntityLiquidFuelThrusterCasing;
@@ -133,10 +134,6 @@ public class KontraptionBlockTypes {
             .build();
 
 
-    public static final BlockTypeTile<TileEntityIonCasing> LARGE_ION_THRUSTER_CASING = BlockTypeTile.BlockTileBuilder
-            .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_CASING, MekanismLang.HOLD_FOR_DESCRIPTION)
-            .externalMultiblock()
-            .build();
     public static final BlockTypeTile<TileEntityIonCoil> LARGE_ION_THRUSTER_COIL = BlockTypeTile.BlockTileBuilder
             .createBlock(() -> KontraptionTileEntityTypes.LARGE_ION_THRUSTER_COIL, MekanismLang.HOLD_FOR_DESCRIPTION)
             .with(new AttributeStateFacing(BlockStateProperties.FACING))
@@ -151,5 +148,6 @@ public class KontraptionBlockTypes {
             .with(new AttributeStateFacing(BlockStateProperties.FACING))
             .externalMultiblock()
             .build();
+
 
 }

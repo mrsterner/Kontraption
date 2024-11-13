@@ -2,8 +2,11 @@ package net.illuc.kontraption.multiblocks.largeionring.parts
 
 import it.zerono.mods.zerocore.base.CommonConstants
 import it.zerono.mods.zerocore.lib.block.TileCommandDispatcher
+import it.zerono.mods.zerocore.lib.multiblock.cuboid.PartPosition
+import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator
 import net.illuc.kontraption.KontraptionTileEntityTypes
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.client.model.data.ModelData
 
@@ -22,4 +25,15 @@ class LargeIonRingController(
     }
 
     override fun getUpdatedModelData(): ModelData = ModelData.EMPTY
+
+    override fun isGoodForPosition(
+        p0: PartPosition,
+        p1: IMultiblockValidator,
+    ): Boolean = false
+
+    override fun canOpenGui(
+        world: Level,
+        position: BlockPos,
+        state: BlockState,
+    ): Boolean = super.isMachineAssembled()
 }
