@@ -25,14 +25,19 @@ class LargeIonRingPowerPortEntity(
 
     override fun onPostMachineAssembled(controller: LargeIonRingMultiBlock) {
         super.onPostMachineAssembled(controller)
-        forwarder.setHandler(getEnergyStorage())
+        this.forwarder.handler = getEnergyStorage()
+    }
+
+    override fun onPostMachineBroken() {
+        super.onPostMachineBroken()
+        this.forwarder.handler = NullEnergyHandlers.STORAGE
     }
 
     @NotNull
     override fun <T : Any?> getCapability(
         @NotNull cap: Capability<T>,
         side: Direction?,
-    ): LazyOptional<T> = if (CAPAP_FORGE_ENERGYSTORAGE == cap) capability.cast() else super.getCapability(cap, side)
+    ): LazyOptional<T> = if (CAPAP_FORGE_ENERGYSTORAGE === cap) this.capability.cast() else super.getCapability(cap, side)
 
     override fun getUpdatedModelData(): ModelData = ModelData.EMPTY
 

@@ -17,6 +17,9 @@
   "block.kontraption.oil_drill_port": "Oil Drill Port",
   "block.kontraption.connector": "Connector",
   "block.kontraption.key": "Redstone Interface",
+  "block.kontraption.otter_plushie":"ZeOttery Plushie",
+  "block.kontraption.cosmic_plushie":"Cosmos Plushie",
+  "block.kontraption.illuc_plushie":"Illuc Plushie",
 
   "toolgun.kontraption.mode_change": "Toolgun mode changed to: %1$s",
   "toolgun.kontraption.assemble": "Assemble",
@@ -43,5 +46,8 @@
   "itemGroup.kontraption": "Kontraption",
 
   "_": "----------GUI-------------",
-  "container.kontraption.TerminalGUI": "Ship Terminal Configuration"
+  "container.kontraption.TerminalGUI": "Ship Terminal Configuration",
+  "block.kontraption.tooltip.ottplush1": "Nya",
+  "block.kontraption.tooltip.cosplush1": "Cosmosss",
+  "block.kontraption.tooltip.illplush1": "CORRU"
 }

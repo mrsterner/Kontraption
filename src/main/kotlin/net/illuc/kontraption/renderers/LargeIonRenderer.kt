@@ -24,11 +24,13 @@ class LargeIonRenderer(
     private val valveresourcesz = ResourceLocation(Kontraption.MODID, "block/large_ion_ring_input")
     private val controllerresourcesz = ResourceLocation(Kontraption.MODID, "block/large_ion_ring_controller")
     private val cornerresourcesz = ResourceLocation(Kontraption.MODID, "block/large_ion_ring_corner")
+    private val exaustresourcesz = ResourceLocation(Kontraption.MODID, "block/exaust_ion_ring")
 
     private val modelz: BakedModel = Minecraft.getInstance().modelManager.getModel(resourcesz)
     private val valvemodelz: BakedModel = Minecraft.getInstance().modelManager.getModel(valveresourcesz)
     private val controllermodelz: BakedModel = Minecraft.getInstance().modelManager.getModel(controllerresourcesz)
     private val cornermodelz: BakedModel = Minecraft.getInstance().modelManager.getModel(cornerresourcesz)
+    private val exaustmodelz: BakedModel = Minecraft.getInstance().modelManager.getModel(exaustresourcesz)
 
     private var fmodelz = Minecraft.getInstance().modelManager.missingModel
     var logger: Logger = LogManager.getLogger(Kontraption::class)
@@ -64,6 +66,7 @@ class LargeIonRenderer(
         val assembled = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.ASS)
         val sr = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.SR)
         val state = blockEntity.blockState.getValue(LargeIonMultiblockPartBlockTemplate.STATETYPE)
+        val mbsize = blockEntity.getNBT()
 
         when (state) {
             0 -> fmodelz = modelz
@@ -101,7 +104,7 @@ class LargeIonRenderer(
             poseStack.translate((xmv + ax), ymv, (zmv + az))
             Minecraft.getInstance().blockRenderer.modelRenderer.renderModel(
                 poseStack.last(),
-                buffer.getBuffer(RenderType.solid()),
+                buffer.getBuffer(RenderType.cutout()),
                 null,
                 fmodelz,
                 1.0f,
@@ -110,8 +113,23 @@ class LargeIonRenderer(
                 combinedLight,
                 combinedOverlay,
                 ModelData.EMPTY,
-                RenderType.solid(),
+                RenderType.cutout(),
             )
+            if (state == 3) {
+                Minecraft.getInstance().blockRenderer.modelRenderer.renderModel(
+                    poseStack.last(),
+                    buffer.getBuffer(RenderType.cutout()),
+                    null,
+                    exaustmodelz,
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    combinedLight,
+                    combinedOverlay,
+                    ModelData.EMPTY,
+                    RenderType.cutout(),
+                )
+            }
         }
         poseStack.popPose()
     }

@@ -26,16 +26,17 @@ import net.illuc.kontraption.gui.ShipTerminalMenu
 import net.illuc.kontraption.gui.ShipTerminalScreen
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterMultiblockData
 import net.illuc.kontraption.multiblocks.largeHydrogenThruster.LiquidFuelThrusterValidator
-import net.illuc.kontraption.multiblocks.largeion.LargeIonMultiblockData
-import net.illuc.kontraption.multiblocks.largeion.LargeIonValidator
 import net.illuc.kontraption.multiblocks.railgun.RailgunMultiblockData
 import net.illuc.kontraption.multiblocks.railgun.RailgunValidator
 import net.illuc.kontraption.network.KontraptionPacketHandler
 import net.illuc.kontraption.renderers.LargeIonRenderer
+import net.illuc.kontraption.renderers.PlushieRenderer
 import net.illuc.kontraption.util.BlockDamageManager
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.particle.SpriteSet
+import net.minecraft.client.renderer.ItemBlockRenderTypes
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.FriendlyByteBuf
@@ -77,7 +78,7 @@ import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
 @Mod(Kontraption.MODID)
 class Kontraption : IModModule {
-    val logger: Logger = LogManager.getLogger(Kontraption::class.java) // LOGGER FFS
+    val logger: Logger = LogManager.getLogger(Kontraption::class.java) // LOGGER FFS COUGHT too lazy to find where used
 
     // Versioning
     val versionNumber: Version
@@ -193,6 +194,10 @@ class Kontraption : IModModule {
     private fun clientSetup(event: FMLClientSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.addListener(ClientRuntimeEvents::onRenderWorld)
+        ItemBlockRenderTypes.setRenderLayer(GlobalRegistry.Blocks.OTTER_PLUSHIE.get(), RenderType.cutout())
+        ItemBlockRenderTypes.setRenderLayer(GlobalRegistry.Blocks.COSMIC_PLUSHIE.get(), RenderType.cutout())
+        ItemBlockRenderTypes.setRenderLayer(GlobalRegistry.Blocks.ILLUC_PLUSHIE.get(), RenderType.cutout())
+        ItemBlockRenderTypes.setRenderLayer(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get(), RenderType.cutout())
     }
 
     private fun registerKeyBindings(event: RegisterKeyMappingsEvent) {
@@ -233,6 +238,9 @@ class Kontraption : IModModule {
         const val MODID = "kontraption"
         var instance: Kontraption? = null
 
+        @JvmField
+        val LOGGER: Logger = LogManager.getLogger(Kontraption::class.java)
+
         // Im BLIND
         val MENU_TYPES: DeferredRegister<MenuType<*>> = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID)
         val TERMINALMENU: RegistryObject<MenuType<ShipTerminalMenu>> =
@@ -248,12 +256,6 @@ class Kontraption : IModModule {
                 "hydrogenThruster",
                 { MultiblockCache<LiquidFuelThrusterMultiblockData?>() },
                 { LiquidFuelThrusterValidator() },
-            )
-        val largeIonThrusterManager: MultiblockManager<LargeIonMultiblockData?> =
-            MultiblockManager(
-                "largeionthruster",
-                { MultiblockCache<LargeIonMultiblockData?>() },
-                { LargeIonValidator() },
             )
         val railgunManager: MultiblockManager<RailgunMultiblockData?> =
             MultiblockManager("railgun", { MultiblockCache<RailgunMultiblockData?>() }, { RailgunValidator() })
@@ -278,6 +280,7 @@ class Kontraption : IModModule {
 
         private fun registerTRenderers() {
             BlockEntityRenderers.register(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING.get(), ::LargeIonRenderer)
+            BlockEntityRenderers.register(GlobalRegistry.TileEntities.PLUSHIE_ENTITY.get(), ::PlushieRenderer)
         }
 
         @SubscribeEvent
@@ -335,6 +338,10 @@ class Kontraption : IModModule {
                 output.accept(GlobalRegistry.Items.LARGE_ION_THRUSTER_VALVE.get())
                 output.accept(GlobalRegistry.Items.LARGE_ION_THRUSTER_COIL.get())
                 output.accept(GlobalRegistry.Items.LARGE_ION_THRUSTER_CASING.get())
+                // divider
+                output.accept(GlobalRegistry.Items.OTTER_PLUSHIE.get())
+                output.accept(GlobalRegistry.Items.COSMIC_PLUSHIE.get())
+                output.accept(GlobalRegistry.Items.ILLUC_PLUSHIE.get())
                 // output.accept(KontraptionBlocks.SERVO)
                 // output.accept(KontraptionBlocks.WHEEL)
             }.build()
