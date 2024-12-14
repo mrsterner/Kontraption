@@ -11,7 +11,7 @@ import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockCon
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator
 import net.illuc.kontraption.GlobalRegistry
 import net.illuc.kontraption.ThrusterInterface
-import net.illuc.kontraption.blockEntities.largeion.TileEntityIonCasing
+import net.illuc.kontraption.multiblocks.largeionring.parts.AbstractRingEntity
 import net.illuc.kontraption.particles.ThrusterParticleData
 import net.illuc.kontraption.util.*
 import net.minecraft.core.BlockPos
@@ -31,11 +31,12 @@ open class LargeIonRingMultiBlock(
     ThrusterInterface,
     IActivableMachine {
     // vars
-    var exhaustDirection: Direction = Direction.UP
+    var exhaustDirection: Direction = Direction.DOWN
     var centerExhaust: BlockPos = this.boundingBox.center
     var exhaustDiameter = 0
     var offset: Vec3 = Vec3(0.0, 0.0, 0.0)
     var center: BlockPos = BlockPos(0, 0, 0)
+    var shipGrabpos: BlockPos = BlockPos(0, 0, 0)
     var innerVolume = 1
     var particleDir = exhaustDirection.normal.multiply(3 + exhaustDiameter).toJOMLD()
     var pos = centerExhaust.offset(exhaustDirection.normal.multiply(2))
@@ -64,10 +65,14 @@ open class LargeIonRingMultiBlock(
 
     val blockMappings: Map<Byte, List<Block>> =
         mapOf(
+            0.toByte() to listOf(GlobalRegistry.Blocks.OTTER_PLUSHIE.get()),
             1.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
-            2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
-            2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_VALVE.get()),
-            2.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CONTROLLER.get()),
+            2.toByte() to
+                listOf(
+                    GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get(),
+                    GlobalRegistry.Blocks.LARGE_ION_THRUSTER_VALVE.get(),
+                    GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CONTROLLER.get(),
+                ),
             3.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
             4.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_CASING.get()),
             5.toByte() to listOf(GlobalRegistry.Blocks.LARGE_ION_THRUSTER_COIL.get()),
@@ -212,6 +217,13 @@ open class LargeIonRingMultiBlock(
 
     override fun onMachineAssembled() {
         super.onMachineAssembled()
+        this.callOnLogicalServer(this::serverMachineAssembly)
+    }
+
+    fun serverMachineAssembly() {
+        println("ASSEMBLING")
+        centerExhaust = this.boundingBox.center
+
         ship = KontraptionVSUtils.getShipObjectManagingPos((thrusterLevel as ServerLevel), centerExhaust)
             ?: KontraptionVSUtils.getShipManagingPos((thrusterLevel as ServerLevel), centerExhaust)
 
@@ -277,39 +289,40 @@ open class LargeIonRingMultiBlock(
     }
 
     override fun isMachineWhole(validatorCallback: IMultiblockValidator): Boolean {
+        if (boundingBox.lengthX > 15 || boundingBox.lengthX < 5 || boundingBox.lengthZ > 15 || boundingBox.lengthZ < 5 || boundingBox.lengthY != 2 || boundingBox.lengthZ != boundingBox.lengthX) {
+            validatorCallback.setLastError("Invalid Length of the multiblock", *arrayOfNulls(0))
+            return false
+        }
+        val hollowVolume = (boundingBox.lengthX - 4) * (boundingBox.lengthZ - 4) * boundingBox.lengthY
+        val expectedPartsCount = boundingBox.lengthX * boundingBox.lengthZ * boundingBox.lengthY - hollowVolume
+        if (expectedPartsCount != this.partsCount) {
+            validatorCallback.setLastError("Invalid block amount for the multiblock", *arrayOfNulls(0))
+            return false
+        }
         val (minX, minY, minZ) = arrayOf(boundingBox.minX, boundingBox.minY, boundingBox.minZ)
         val (maxX, maxY, maxZ) = arrayOf(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ)
         for (x in minX..maxX) {
             for (y in minY..maxY) {
                 for (z in minZ..maxZ) {
                     val pos = BlockPos(x, y, z).mutable()
-                    val sR = structureRequirement.isValidBlock(world, pos, true, boundingBox)
-                    if (!sR.first) {
-                        validatorCallback.setLastError(pos, "Invalid block type for this position ${sR.first} and ${sR.second}", *arrayOfNulls(0))
+                    val (isValid, requiredType) = structureRequirement.isValidBlock(world, pos, true, boundingBox)
+                    if (!isValid) {
+                        validatorCallback.setLastError(pos, "Invalid block type for this position $requiredType", *arrayOfNulls(0))
                         return false
-                    } else {
-                        val be = world.getBlockEntity(pos) as? TileEntityIonCasing
-                        val aType = sR.second
-                        if (aType == 3.toByte()) {
-                            if (be != null) {
-                                be.isTop = true // OPTIMISED :3
+                    }
+                    val blockEntity = world.getBlockEntity(pos) as? AbstractRingEntity
+                    when (requiredType) {
+                        3.toByte() -> blockEntity?.isTop = true
+                        4.toByte() ->
+                            blockEntity?.let {
+                                it.isTop = true
+                                it.isCorner = true
                             }
-                        } else {
-                            if (be != null) {
-                                be.isTop = false
-                            }
-                        }
-                        if (aType == 4.toByte()) {
-                            if (be != null) {
-                                be.isCorner = true
-                                be.isTop = true
-                            }
-                        }
+                        else -> blockEntity?.isTop = false
                     }
                 }
             }
-            return true
         }
-        return false
+        return true
     }
 }

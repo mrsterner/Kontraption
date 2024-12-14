@@ -11,6 +11,7 @@ class StructReq(
 ) {
     /**
      * Checks if the block at a given position satisfies the structure requirement for this Array of Layers.
+     * IF YOU ARE USING AIRC YOU MUST DEFINE 0 BYTE IN THE BLOCKMAP
      * @param world The world in which the multiblock is located(CANNOT BE RELATIVE)
      * @param pos The position of the block
      * @param airc If 0 should by default be Air
@@ -22,7 +23,7 @@ class StructReq(
         airc: Boolean,
         cbb: CuboidBoundingBox,
     ): Pair<Boolean, Byte> {
-        val allowedLayers: Array<Array<ByteArray>> = OttUtils.generateAllowedLayers(cbb.lengthX, cbb.lengthZ, 2)
+        val allowedLayers: Array<Array<ByteArray>> = OttUtils.generateAllowedLayers(cbb.lengthX, 2, cbb.lengthZ)
         if (cbb.lengthY == allowedLayers.size) {
             val relativePos = pos.subtract(Vec3i(cbb.minX, cbb.minY, cbb.minZ))
             val layer = relativePos.y

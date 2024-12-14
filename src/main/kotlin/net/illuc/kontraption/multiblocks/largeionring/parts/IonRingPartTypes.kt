@@ -19,19 +19,19 @@ enum class IonRingPartTypes(
         "block.kontraption.largeionringcasing",
     ),
     Coil(
-        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_COIL::get) },
         { props -> LargeIonMultiblockPartBlockTemplate(props) },
         "block.kontraption.coppercoil",
     ),
 
     Controller(
-        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CONTROLLER::get) },
         { props -> LargeIonMultiblockPartBlockTemplate(props) },
         "block.kontraption.largeionringcontroller",
     ),
 
     PowerPortRF(
-        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_CASING::get) },
+        NonNullSupplier { NonNullSupplier(GlobalRegistry.TileEntities.LARGE_ION_THRUSTER_VALVE::get) },
         { props -> LargeIonMultiblockPartBlockTemplate(props) },
         "block.kontraption.largeionringpowerportrf",
     ),
@@ -46,6 +46,6 @@ enum class IonRingPartTypes(
             tileTypeSupplier,
             blockFactory,
             translationKey,
-            { it },
+            { props -> props.noOcclusion() },
         )
 }
