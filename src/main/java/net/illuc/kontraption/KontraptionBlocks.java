@@ -57,5 +57,3 @@ public class KontraptionBlocks {
     public static final BlockRegistryObject<BlockBasicMultiblock, BlockItem> RAILGUN_PORT = BLOCKS.register("railgun_port", () -> new BlockBasicMultiblock<>(KontraptionBlockTypes.RAILGUN_PORT, properties -> properties.mapColor(MapColor.COLOR_GRAY)));
 
 }
-
-

@@ -24,6 +24,7 @@ import net.illuc.kontraption.util.*
 import net.illuc.kontraption.util.KontraptionVSUtils.createNewShipWithBlocks
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
+import net.minecraft.server.commands.TeleportCommand
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
@@ -117,7 +118,7 @@ class ItemToolgun(properties: Properties) :
                 secondPosition = null
                 if (SelectionZone != null) Renderer.removeRender(SelectionZone!!)
                 SelectionZone = null
-                player.sendSystemMessage(Component.literal("Selection reset"))
+                player.sendSystemMessage(Component.translatable("toolgun.kontraption.selection_reset"))
 
                 // First pos selection
             } else if (firstPosition == null) {
@@ -125,9 +126,9 @@ class ItemToolgun(properties: Properties) :
                 if (res != null && KontraptionVSUtils.getShipObjectManagingPos(level, res.blockPos) == null) {
                     firstPosition = res.blockPos
                     Mekanism.logger.info("first pos: $firstPosition")
-                    player.sendSystemMessage(Component.literal("First pos selected"))
+                    player.sendSystemMessage(Component.translatable("toolgun.kontraption.first_pos_selected"))
                 } else {
-                    player.sendSystemMessage(Component.literal("Selected position is on a ship!"))
+                    player.sendSystemMessage(Component.translatable("toolgun.kontraption.pos_on_ship"))
                 }
 
                 // Second pos selection
@@ -139,7 +140,7 @@ class ItemToolgun(properties: Properties) :
 
                     secondPosition = res.blockPos
                     Mekanism.logger.info("second pos: $secondPosition")
-                    player.sendSystemMessage(Component.literal("Second pos selected"))
+                    player.sendSystemMessage(Component.translatable("toolgun.kontraption.second_pos_selected"))
 
                     val SZ =
                         SelectionZoneRenderer(
@@ -153,7 +154,7 @@ class ItemToolgun(properties: Properties) :
                         )
                     SelectionZone = Renderer.addRender(SZ)
                 } else {
-                    player.sendSystemMessage(Component.literal("Selected position is on a ship!"))
+                    player.sendSystemMessage(Component.translatable("toolgun.kontraption.pos_on_ship"))
                 }
 
                 // Assembly
@@ -180,7 +181,7 @@ class ItemToolgun(properties: Properties) :
                     if (energyContainer != null) {
                         Mekanism.logger.info("Assembly failed! Not enough energy, $energyPerUse needed but had ${energyContainer.energy}")
                         player.sendSystemMessage(
-                            Component.literal("Assembly failed! Not enough energy, $energyPerUse needed but had ${energyContainer.energy}"),
+                            Component.literal("Assembly failed! Not enough energy, $energyPerUse needed but had ${energyContainer.energy}")
                         )
                     }
                 } else {
@@ -188,7 +189,7 @@ class ItemToolgun(properties: Properties) :
                         energyContainer.extract(energyPerUse, Action.EXECUTE, AutomationType.MANUAL)
                         createNewShipWithBlocks(pos, set, (level as ServerLevel))
                         player.playSound(MekanismSounds.BEEP.get(), 1F, 2F)
-                        player.sendSystemMessage(Component.literal("Assembled!"))
+                        player.sendSystemMessage(Component.translatable("toolgun.kontraption.assembly_successful"))
                     }
                 }
                 if (SelectionZone != null) Renderer.removeRender(SelectionZone!!)
